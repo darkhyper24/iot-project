@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: iot_user
+      POSTGRES_PASSWORD: iot_password
+      POSTGRES_DB: iot_campus
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iot_user -d iot_campus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - "1883:1883"
+
+  simulator:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mqtt-broker:
+        condition: service_started
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: iot_user
+      DB_PASSWORD: iot_password
+      DB_NAME: iot_campus
+      MQTT_BROKER_HOST: mqtt-broker
+    volumes:
+      - ./config:/app/config
+
+volumes:
+  pgdata:

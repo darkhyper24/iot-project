@@ -1,0 +1,43 @@
+building:
+  id: "b01"
+  floors: 10
+  rooms_per_floor: 20
+
+simulation:
+  tick_interval: 5
+  max_jitter: 5
+  db_sync_interval: 30
+  time_acceleration: 1.0
+
+database:
+  host: postgres
+  port: 5432
+  user: iot_user
+  password: iot_password
+  dbname: iot_campus
+
+thermal:
+  alpha: 0.01
+  beta: 0.2
+  default_temp: 22.0
+  outside_temp: 35.0
+  occupancy_heat: 0.05
+  light_threshold: 300
+
+mqtt:
+  broker_host: mqtt-broker
+  broker_port: 1883
+  topic_prefix: "campus"
+
+faults:
+  enabled: true
+  probability: 0.01
+  types:
+    sensor_drift: true
+    frozen_sensor: true
+    telemetry_delay: true
+    node_dropout: true
+
+heartbeat:
+  interval: 10
+  timeout: 60
