@@ -5,6 +5,7 @@ import random
 import time
 from typing import Any
 
+from simulator.engine.commands import CommandHandler
 from simulator.models.room import Room
 
 logger = logging.getLogger(__name__)
@@ -21,13 +22,13 @@ class WorldEngine:
         self._rooms_by_id: dict[str, Room] = {}
         self._sim_real_start = time.perf_counter()
         self._sim_epoch_start = int(time.time())
+        self._cmd_handler: CommandHandler | None = None
 
     async def initialize(self) -> None:
         building_id = self.config["building"]["id"]
         floors = self.config["building"]["floors"]
         rooms_per_floor = self.config["building"]["rooms_per_floor"]
 
-        # Load existing states from PostgreSQL
         saved_states = await self.db.load_states()
         restored = 0
 
@@ -41,7 +42,6 @@ class WorldEngine:
                 if state:
                     restored += 1
 
-        # Seed heartbeat timestamps so rooms don't immediately appear silent
         now = time.time()
         for room in self.rooms:
             self._last_heartbeats[room.id] = now
@@ -53,7 +53,11 @@ class WorldEngine:
         )
 
     def setup_mqtt(self) -> None:
-        self.mqtt.on_message = self._on_message
+        self._cmd_handler = CommandHandler(
+            self.config, self.rooms, self._rooms_by_id,
+            self.db, self._simulation_time,
+        )
+        self.mqtt.on_message = self._cmd_handler.on_message
 
         prefix = self.config["mqtt"]["topic_prefix"]
         building_slug = self.rooms[0].mqtt_building
@@ -63,17 +67,20 @@ class WorldEngine:
         logger.info("MQTT command subscriptions registered for %s", building_slug)
 
     async def run(self) -> None:
-        # Launch one asyncio task per room
         for room in self.rooms:
             task = asyncio.create_task(self._room_loop(room))
             self._tasks.append(task)
 
-        # Launch sync and heartbeat loops
         self._tasks.append(asyncio.create_task(self._sync_loop()))
         self._tasks.append(asyncio.create_task(self._fleet_health_loop()))
 
         logger.info("World engine running: %d room tasks + sync + fleet health", len(self.rooms))
         await asyncio.gather(*self._tasks)
+
+    def _fleet_monitoring_topic(self) -> str:
+        prefix = self.config["mqtt"]["topic_prefix"]
+        building_slug = self.rooms[0].mqtt_building
+        return f"{prefix}/{building_slug}/fleet_monitoring/heartbeat"
 
     async def _room_loop(self, room: Room) -> None:
         tick_interval = self.config["simulation"]["tick_interval"]
@@ -88,19 +95,16 @@ class WorldEngine:
             start = time.perf_counter()
             timestamp = self._simulation_time()
 
-            # Physics update
             room.tick(self.config, timestamp)
-
-            # Fault injection
             room.maybe_inject_fault(self.config)
 
-            # Check for node dropout — skip publishing if active
+            # Node dropout — skip publishing
             if room.active_fault == "node_dropout":
                 elapsed = time.perf_counter() - start
                 await asyncio.sleep(max(0, tick_interval - elapsed))
                 continue
 
-            # Check for telemetry delay
+            # Telemetry delay fault
             if room.active_fault == "telemetry_delay":
                 delay_ticks = room.fault_data.get("delay_ticks", 1)
                 await asyncio.sleep(delay_ticks * tick_interval * 0.1)
@@ -111,9 +115,15 @@ class WorldEngine:
             self.mqtt.publish(topic, json.dumps(payload), qos=0)
 
             if timestamp - last_heartbeat_at >= heartbeat_interval:
+                heartbeat_payload = json.dumps(room.heartbeat_payload(timestamp))
                 self.mqtt.publish(
                     f"{room.mqtt_path}/heartbeat",
-                    json.dumps(room.heartbeat_payload(timestamp)),
+                    heartbeat_payload,
+                    qos=0,
+                )
+                self.mqtt.publish(
+                    self._fleet_monitoring_topic(),
+                    heartbeat_payload,
                     qos=0,
                 )
                 self._last_heartbeats[room.id] = time.time()
@@ -168,83 +178,3 @@ class WorldEngine:
         acceleration = self.config["simulation"].get("time_acceleration", 1.0)
         elapsed_real = time.perf_counter() - self._sim_real_start
         return int(self._sim_epoch_start + (elapsed_real * acceleration))
-
-    async def _on_message(self, client, topic, payload, qos, properties):
-        del client, qos, properties
-
-        try:
-            command = json.loads(payload.decode() if isinstance(payload, bytes) else payload)
-        except json.JSONDecodeError:
-            logger.warning("Rejected malformed command payload on topic %s", topic)
-            return
-
-        targets = self._resolve_targets(topic)
-        if not targets:
-            logger.warning("No simulator targets matched command topic %s", topic)
-            return
-
-        if not self._is_valid_command(command):
-            logger.warning("Rejected invalid command payload on topic %s: %s", topic, command)
-            return
-
-        for room in targets:
-            room.apply_command(command)
-            room.last_update = self._simulation_time()
-
-        try:
-            if len(targets) == 1:
-                await self.db.save_room(targets[0])
-            else:
-                await self.db.save_states(targets)
-        except Exception:
-            logger.exception("Failed to persist command save point for topic %s", topic)
-            return
-
-        logger.info("Applied command to %d room(s) from topic %s", len(targets), topic)
-
-    def _resolve_targets(self, topic: str) -> list[Room]:
-        parts = topic.split("/")
-        if len(parts) < 3 or parts[-1] != "command":
-            return []
-
-        prefix = self.config["mqtt"]["topic_prefix"]
-        building_slug = self.rooms[0].mqtt_building if self.rooms else ""
-        if parts[0] != prefix or parts[1] != building_slug:
-            return []
-
-        if len(parts) == 3:
-            return list(self.rooms)
-
-        if len(parts) == 4:
-            floor_slug = parts[2]
-            return [room for room in self.rooms if room.mqtt_floor == floor_slug]
-
-        if len(parts) == 5:
-            room_key = f"{parts[2]}/{parts[3]}"
-            return [room for room in self.rooms if f"{room.mqtt_floor}/{room.mqtt_room}" == room_key]
-
-        return []
-
-    def _is_valid_command(self, command: dict) -> bool:
-        allowed_keys = {"hvac_mode", "target_temp", "lighting_dimmer"}
-        if not isinstance(command, dict) or not (allowed_keys & set(command)):
-            return False
-
-        if "hvac_mode" in command and command["hvac_mode"] not in {"ON", "OFF", "ECO"}:
-            return False
-        if "target_temp" in command:
-            try:
-                target_temp = float(command["target_temp"])
-            except (TypeError, ValueError):
-                return False
-            if not 15.0 <= target_temp <= 50.0:
-                return False
-        if "lighting_dimmer" in command:
-            try:
-                lighting_dimmer = int(command["lighting_dimmer"])
-            except (TypeError, ValueError):
-                return False
-            if not 0 <= lighting_dimmer <= 100:
-                return False
-
-        return True

@@ -1,5 +1,5 @@
-import math
-import random
+from simulator import physics
+from simulator.faults import FaultInjector
 
 
 class Room:
@@ -34,40 +34,60 @@ class Room:
         self._occupancy_offset = (floor * 17 + room_num * 7) % 8
         self._light_offset = (floor * 31 + room_num * 11) % 120
 
-        # Fault state
-        self.active_fault: str | None = None
-        self.fault_data: dict = {}
-        self._fault_ticks_remaining = 0
+        self.fault_injector = FaultInjector()
+
+    @property
+    def active_fault(self) -> str | None:
+        return self.fault_injector.active_fault
+
+    @active_fault.setter
+    def active_fault(self, value: str | None) -> None:
+        self.fault_injector.active_fault = value
+
+    @property
+    def fault_data(self) -> dict:
+        return self.fault_injector.fault_data
+
+    @fault_data.setter
+    def fault_data(self, value: dict) -> None:
+        self.fault_injector.fault_data = value
 
     def tick(self, config: dict, timestamp: int) -> None:
         thermal = config["thermal"]
         alpha = thermal["alpha"]
         beta = thermal["beta"]
-        outside_temp = self._get_outside_temp(thermal["outside_temp"], timestamp)
+        outside_temp = physics.outside_temperature(thermal["outside_temp"], timestamp)
 
         # 1. Thermal leakage (Newton's Law of Cooling)
-        leakage = alpha * (outside_temp - self.temperature)
+        leakage = physics.thermal_leakage(alpha, outside_temp, self.temperature)
 
-        self._update_occupancy(timestamp)
+        # 2. Occupancy update
+        self.occupancy = physics.compute_occupancy(timestamp, self._occupancy_offset)
 
-        # 2. HVAC actuator impact
-        hvac_power = {"ON": 1.0, "OFF": 0.0, "ECO": 0.5}.get(self.hvac_mode, 0.0)
-        hvac_effect = 0.0
-        if hvac_power > 0 and abs(self.target_temp - self.temperature) > 0.01:
-            direction = 1.0 if self.target_temp > self.temperature else -1.0
-            hvac_effect = beta * hvac_power * direction
+        # 3. HVAC actuator impact
+        hvac = physics.hvac_effect(beta, self.hvac_mode, self.target_temp, self.temperature)
 
-        # 3. Occupancy heat contribution
-        occupancy_effect = thermal["occupancy_heat"] if self.occupancy else 0.0
+        # 4. Occupancy heat contribution
+        occ_heat = physics.occupancy_heat_gain(self.occupancy, thermal["occupancy_heat"])
 
-        # 4. Update temperature
-        self.temperature += leakage + hvac_effect + occupancy_effect
+        # 5. Update temperature
+        self.temperature += leakage + hvac + occ_heat
 
-        # 5. Environmental correlations
-        self._update_light(thermal["light_threshold"], timestamp)
-        self._update_humidity(outside_temp)
+        # 6. Environmental correlations
+        light_level, dimmer_hint = physics.compute_light(
+            self.occupancy, timestamp, thermal["light_threshold"], self._light_offset,
+        )
+        self.light_level = light_level
+        if dimmer_hint >= 0:
+            self.lighting_dimmer = max(self.lighting_dimmer, dimmer_hint)
+        else:
+            self.lighting_dimmer = min(self.lighting_dimmer, -dimmer_hint)
 
-        # 6. Clamp to spec ranges
+        self.humidity = physics.compute_humidity(
+            self.humidity, outside_temp, self.temperature, self.occupancy,
+        )
+
+        # 7. Clamp to spec ranges
         self.temperature = max(15.0, min(50.0, self.temperature))
         self.humidity = max(0.0, min(100.0, self.humidity))
         self.light_level = max(0, min(1000, self.light_level))
@@ -76,71 +96,24 @@ class Room:
         self.last_update = timestamp
 
     def maybe_inject_fault(self, config: dict) -> None:
-        faults_cfg = config["faults"]
-        if not faults_cfg["enabled"]:
-            return
-
-        # If a fault is active, decrement its duration
-        if self.active_fault:
-            self._fault_ticks_remaining -= 1
-            if self._fault_ticks_remaining <= 0:
-                self.active_fault = None
-                self.fault_data = {}
-            else:
-                self._apply_active_fault()
-                return
-
-        # Probabilistic fault injection
-        if random.random() >= faults_cfg["probability"]:
-            return
-
-        available = [t for t, enabled in faults_cfg["types"].items() if enabled]
-        if not available:
-            return
-
-        fault = random.choice(available)
-        self.active_fault = fault
-        self._fault_ticks_remaining = random.randint(3, 20)
-
-        if fault == "sensor_drift":
-            self.fault_data = {"drift_bias": random.uniform(-0.05, 0.05)}
-        elif fault == "frozen_sensor":
-            self.fault_data = {"frozen_temp": self.temperature}
-        elif fault == "telemetry_delay":
-            self.fault_data = {"delay_ticks": random.randint(1, 3)}
-        elif fault == "node_dropout":
-            self.fault_data = {"silent": True}
-
-        self._apply_active_fault()
-
-    def _apply_active_fault(self) -> None:
-        if self.active_fault == "sensor_drift":
-            self.fault_data["drift_bias"] += random.uniform(-0.02, 0.02)
-            self.temperature += self.fault_data["drift_bias"]
-        elif self.active_fault == "frozen_sensor":
-            self.temperature = self.fault_data["frozen_temp"]
+        self.fault_injector.maybe_inject(config, self.temperature)
+        self.temperature = self.fault_injector.apply_to_temperature(self.temperature)
 
     def to_telemetry(self, timestamp: int) -> dict:
         return {
-            "metadata": {
-                "sensor_id": self.id,
-                "building": self.building_id,
-                "floor": self.floor_number,
-                "room": self.room_number,
-                "timestamp": timestamp,
-                "fault": self.active_fault or "none",
-            },
-            "sensors": {
-                "temperature": round(self.temperature, 2),
-                "humidity": round(self.humidity, 2),
-                "occupancy": self.occupancy,
-                "light_level": self.light_level,
-            },
-            "actuators": {
-                "hvac_mode": self.hvac_mode,
-                "lighting_dimmer": self.lighting_dimmer,
-                "target_temp": round(self.target_temp, 2),
-            },
+            "sensor_id": self.id,
+            "building": self.building_id,
+            "floor": self.floor_number,
+            "room": self.room_number,
+            "timestamp": timestamp,
+            "fault": self.active_fault or "none",
+            "temperature": round(self.temperature, 2),
+            "humidity": round(self.humidity, 2),
+            "occupancy": self.occupancy,
+            "light_level": self.light_level,
+            "hvac_mode": self.hvac_mode,
+            "lighting_dimmer": self.lighting_dimmer,
+            "target_temp": round(self.target_temp, 2),
         }
 
     def heartbeat_payload(self, timestamp: int) -> dict:
@@ -180,47 +153,6 @@ class Room:
 
         self.target_temp = max(15.0, min(50.0, self.target_temp))
         self.lighting_dimmer = max(0, min(100, self.lighting_dimmer))
-
-    def _get_outside_temp(self, base_outside: float, timestamp: int) -> float:
-        hour = self._hour_of_day(timestamp)
-        # Sinusoidal day/night cycle: peak at 14:00, trough at 02:00
-        variation = 5.0 * math.sin(math.pi * (hour - 2) / 12)
-        return base_outside + variation
-
-    def _update_occupancy(self, timestamp: int) -> None:
-        hour = self._hour_of_day(timestamp)
-        quarter_slot = (timestamp // 900 + self._occupancy_offset) % 8
-        if 8 <= hour < 18:
-            self.occupancy = quarter_slot in {1, 2, 3, 5, 6}
-        elif 18 <= hour < 22:
-            self.occupancy = quarter_slot == 0
-        else:
-            self.occupancy = False
-
-    def _update_light(self, threshold: int, timestamp: int) -> None:
-        daylight = self._is_daylight(timestamp)
-        if self.occupancy:
-            self.light_level = max(threshold, threshold + self._light_offset)
-            self.lighting_dimmer = max(self.lighting_dimmer, 65)
-        elif daylight:
-            self.light_level = 180 + (self._light_offset // 2)
-            self.lighting_dimmer = min(self.lighting_dimmer, 25)
-        else:
-            self.light_level = 20 + (self._light_offset // 8)
-            self.lighting_dimmer = min(self.lighting_dimmer, 10)
-
-    def _update_humidity(self, outside_temp: float) -> None:
-        target_humidity = 42.0 + ((outside_temp - self.temperature) * 0.2)
-        if self.occupancy:
-            target_humidity += 3.0
-        self.humidity += 0.15 * (target_humidity - self.humidity)
-
-    def _hour_of_day(self, timestamp: int) -> int:
-        return (timestamp // 3600) % 24
-
-    def _is_daylight(self, timestamp: int) -> bool:
-        hour = self._hour_of_day(timestamp)
-        return 7 <= hour < 18
 
     def _format_building_slug(self, building_id: str) -> str:
         digits = "".join(ch for ch in building_id if ch.isdigit()) or "01"
