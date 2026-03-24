@@ -1,0 +1,891 @@
+2026-03-24 17:48:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O     PIDS
+d07e9ab5aa8b   iot-project-simulator-1   15.09%    23.48MiB / 7.548GiB   0.30%     3.97MB / 33kB   53.2kB / 0B   2
+2026-03-24 17:48:53
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O       BLOCK I/O     PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.86%     23.04MiB / 7.548GiB   0.30%     4MB / 181kB   53.2kB / 0B   2
+2026-03-24 17:48:59
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O          BLOCK I/O     PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.19%     23.3MiB / 7.548GiB   0.30%     4.03MB / 306kB   53.2kB / 0B   2
+2026-03-24 17:49:05
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O     PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.49%     23.48MiB / 7.548GiB   0.30%     4.05MB / 433kB   53.2kB / 0B   2
+2026-03-24 17:49:11
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O     PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.76%     23.19MiB / 7.548GiB   0.30%     4.08MB / 603kB   53.2kB / 0B   2
+2026-03-24 17:49:17
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.49%     23.21MiB / 7.548GiB   0.30%     4.1MB / 736kB   86kB / 94.2kB   2
+2026-03-24 17:49:23
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.23%     23.08MiB / 7.548GiB   0.30%     4.12MB / 880kB   86kB / 94.2kB   2
+2026-03-24 17:49:29
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.25%     23.17MiB / 7.548GiB   0.30%     4.14MB / 1.01MB   86kB / 94.2kB   2
+2026-03-24 17:49:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.44%     23.54MiB / 7.548GiB   0.30%     4.16MB / 1.13MB   86kB / 94.2kB   2
+2026-03-24 17:49:41
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.72%     23.4MiB / 7.548GiB   0.30%     4.19MB / 1.3MB   86kB / 94.2kB   2
+2026-03-24 17:49:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.29%     23.55MiB / 7.548GiB   0.30%     4.21MB / 1.43MB   86kB / 94.2kB   2
+2026-03-24 17:49:54
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.04%     23.02MiB / 7.548GiB   0.30%     4.24MB / 1.57MB   86kB / 94.2kB   2
+2026-03-24 17:50:00
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.34%     23.21MiB / 7.548GiB   0.30%     4.26MB / 1.71MB   86kB / 94.2kB   2
+2026-03-24 17:50:06
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.49%     23.07MiB / 7.548GiB   0.30%     4.28MB / 1.83MB   86kB / 94.2kB   2
+2026-03-24 17:50:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.47%     23.16MiB / 7.548GiB   0.30%     4.31MB / 1.99MB   86kB / 94.2kB   2
+2026-03-24 17:50:18
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.36%     23.25MiB / 7.548GiB   0.30%     4.33MB / 2.13MB   86kB / 94.2kB   2
+2026-03-24 17:50:24
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.95%     23.53MiB / 7.548GiB   0.30%     4.35MB / 2.27MB   86kB / 94.2kB   2
+2026-03-24 17:50:30
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.34%     23.66MiB / 7.548GiB   0.31%     4.38MB / 2.41MB   86kB / 94.2kB   2
+2026-03-24 17:50:36
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     23.84MiB / 7.548GiB   0.31%     4.4MB / 2.52MB   86kB / 94.2kB   2
+2026-03-24 17:50:42
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.78%     23.64MiB / 7.548GiB   0.31%     4.42MB / 2.68MB   86kB / 94.2kB   2
+2026-03-24 17:50:48
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.27%     22.91MiB / 7.548GiB   0.30%     4.45MB / 2.83MB   86kB / 94.2kB   2
+2026-03-24 17:50:54
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.60%     23.31MiB / 7.548GiB   0.30%     4.47MB / 2.95MB   86kB / 94.2kB   2
+2026-03-24 17:51:00
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.47%     23.35MiB / 7.548GiB   0.30%     4.49MB / 3.1MB   86kB / 94.2kB   2
+2026-03-24 17:51:06
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.49%     23.57MiB / 7.548GiB   0.31%     4.51MB / 3.22MB   86kB / 94.2kB   2
+2026-03-24 17:51:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.03%     23.2MiB / 7.548GiB   0.30%     4.54MB / 3.37MB   86kB / 94.2kB   2
+2026-03-24 17:51:18
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.28%     23.07MiB / 7.548GiB   0.30%     4.56MB / 3.51MB   86kB / 94.2kB   2
+2026-03-24 17:51:25
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.09%     23.62MiB / 7.548GiB   0.31%     4.59MB / 3.64MB   86kB / 94.2kB   2
+2026-03-24 17:51:31
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.94%     23.38MiB / 7.548GiB   0.30%     4.61MB / 3.79MB   86kB / 94.2kB   2
+2026-03-24 17:51:37
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.65%     23.09MiB / 7.548GiB   0.30%     4.63MB / 3.91MB   86kB / 94.2kB   2
+2026-03-24 17:51:43
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.12%     23.18MiB / 7.548GiB   0.30%     4.65MB / 4.06MB   86kB / 94.2kB   2
+2026-03-24 17:51:49
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.06%     23.46MiB / 7.548GiB   0.30%     4.68MB / 4.2MB   86kB / 94.2kB   2
+2026-03-24 17:51:55
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.44%     23.27MiB / 7.548GiB   0.30%     4.7MB / 4.33MB   86kB / 94.2kB   2
+2026-03-24 17:52:01
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   2.07%     23.21MiB / 7.548GiB   0.30%     4.72MB / 4.5MB   86kB / 94.2kB   2
+2026-03-24 17:52:07
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.51%     23.49MiB / 7.548GiB   0.30%     4.74MB / 4.6MB   86kB / 94.2kB   2
+2026-03-24 17:52:13
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.19%     23.11MiB / 7.548GiB   0.30%     4.76MB / 4.74MB   86kB / 94.2kB   2
+2026-03-24 17:52:19
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.31%     23.39MiB / 7.548GiB   0.30%     4.79MB / 4.9MB   86kB / 94.2kB   2
+2026-03-24 17:52:25
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.34%     23.25MiB / 7.548GiB   0.30%     4.81MB / 5.02MB   86kB / 94.2kB   2
+2026-03-24 17:52:31
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   2.22%     23.21MiB / 7.548GiB   0.30%     4.84MB / 5.18MB   86kB / 94.2kB   2
+2026-03-24 17:52:37
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.55%     23.04MiB / 7.548GiB   0.30%     4.86MB / 5.29MB   86kB / 94.2kB   2
+2026-03-24 17:52:43
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.05%     23.06MiB / 7.548GiB   0.30%     4.88MB / 5.43MB   86kB / 94.2kB   2
+2026-03-24 17:52:49
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.42%     23.42MiB / 7.548GiB   0.30%     4.91MB / 5.58MB   86kB / 94.2kB   2
+2026-03-24 17:52:56
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.77%     23.15MiB / 7.548GiB   0.30%     4.93MB / 5.7MB   86kB / 94.2kB   2
+2026-03-24 17:53:02
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.81%     23.15MiB / 7.548GiB   0.30%     4.96MB / 5.87MB   86kB / 94.2kB   2
+2026-03-24 17:53:08
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.18%     23.33MiB / 7.548GiB   0.30%     4.98MB / 5.97MB   86kB / 94.2kB   2
+2026-03-24 17:53:14
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     23.07MiB / 7.548GiB   0.30%     5.01MB / 6.11MB   86kB / 94.2kB   2
+2026-03-24 17:53:20
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.58%     23.36MiB / 7.548GiB   0.30%     5.03MB / 6.27MB   86kB / 94.2kB   2
+2026-03-24 17:53:26
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.53%     23.43MiB / 7.548GiB   0.30%     5.05MB / 6.39MB   86kB / 94.2kB   2
+2026-03-24 17:53:32
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.36%     23.07MiB / 7.548GiB   0.30%     5.07MB / 6.55MB   86kB / 94.2kB   2
+2026-03-24 17:53:38
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.33%     23.03MiB / 7.548GiB   0.30%     5.09MB / 6.66MB   86kB / 94.2kB   2
+2026-03-24 17:53:44
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.96%     23.32MiB / 7.548GiB   0.30%     5.12MB / 6.79MB   86kB / 94.2kB   2
+2026-03-24 17:53:50
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.78%     23.03MiB / 7.548GiB   0.30%     5.14MB / 6.96MB   152kB / 94.2kB   2
+2026-03-24 17:53:56
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.82%     23.41MiB / 7.548GiB   0.30%     5.16MB / 7.08MB   152kB / 94.2kB   2
+2026-03-24 17:54:02
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.11%     23.54MiB / 7.548GiB   0.30%     5.18MB / 7.24MB   152kB / 94.2kB   2
+2026-03-24 17:54:08
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.48%     23.07MiB / 7.548GiB   0.30%     5.2MB / 7.36MB   152kB / 94.2kB   2
+2026-03-24 17:54:14
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     22.98MiB / 7.548GiB   0.30%     5.22MB / 7.48MB   152kB / 94.2kB   2
+2026-03-24 17:54:20
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.83%     23.18MiB / 7.548GiB   0.30%     5.25MB / 7.66MB   152kB / 94.2kB   2
+2026-03-24 17:54:26
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.96%     23.24MiB / 7.548GiB   0.30%     5.27MB / 7.78MB   152kB / 94.2kB   2
+2026-03-24 17:54:33
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.09%     23.12MiB / 7.548GiB   0.30%     5.29MB / 7.93MB   152kB / 94.2kB   2
+2026-03-24 17:54:39
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.28%     22.96MiB / 7.548GiB   0.30%     5.31MB / 8.05MB   152kB / 94.2kB   2
+2026-03-24 17:54:45
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.24%     22.9MiB / 7.548GiB   0.30%     5.33MB / 8.18MB   152kB / 94.2kB   2
+2026-03-24 17:54:51
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   2.03%     23.18MiB / 7.548GiB   0.30%     5.36MB / 8.37MB   152kB / 94.2kB   2
+2026-03-24 17:54:57
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.65%     23.2MiB / 7.548GiB   0.30%     5.38MB / 8.48MB   152kB / 94.2kB   2
+2026-03-24 17:55:03
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.19%     23.34MiB / 7.548GiB   0.30%     5.41MB / 8.63MB   152kB / 94.2kB   2
+2026-03-24 17:55:09
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.05%     23.33MiB / 7.548GiB   0.30%     5.43MB / 8.75MB   152kB / 94.2kB   2
+2026-03-24 17:55:15
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.31%     23.35MiB / 7.548GiB   0.30%     5.45MB / 8.87MB   152kB / 94.2kB   2
+2026-03-24 17:55:21
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.39%     23.41MiB / 7.548GiB   0.30%     5.48MB / 9.06MB   152kB / 94.2kB   2
+2026-03-24 17:55:27
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.33%     23.25MiB / 7.548GiB   0.30%     5.5MB / 9.17MB   152kB / 94.2kB   2
+2026-03-24 17:55:33
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.12%     23.24MiB / 7.548GiB   0.30%     5.53MB / 9.31MB   152kB / 94.2kB   2
+2026-03-24 17:55:39
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.26%     23.11MiB / 7.548GiB   0.30%     5.55MB / 9.44MB   152kB / 94.2kB   2
+2026-03-24 17:55:45
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.29%     23.3MiB / 7.548GiB   0.30%     5.57MB / 9.55MB   152kB / 94.2kB   2
+2026-03-24 17:55:51
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.94%     23.31MiB / 7.548GiB   0.30%     5.6MB / 9.74MB   152kB / 94.2kB   2
+2026-03-24 17:55:57
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.21%     23.47MiB / 7.548GiB   0.30%     5.62MB / 9.85MB   152kB / 94.2kB   2
+2026-03-24 17:56:04
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     23.24MiB / 7.548GiB   0.30%     5.64MB / 9.99MB   152kB / 94.2kB   2
+2026-03-24 17:56:10
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.30%     23.02MiB / 7.548GiB   0.30%     5.66MB / 10.1MB   152kB / 94.2kB   2
+2026-03-24 17:56:16
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.60%     23.34MiB / 7.548GiB   0.30%     5.68MB / 10.2MB   152kB / 94.2kB   2
+2026-03-24 17:56:22
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.47%     23.27MiB / 7.548GiB   0.30%     5.72MB / 10.4MB   152kB / 94.2kB   2
+2026-03-24 17:56:28
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.30%     23.73MiB / 7.548GiB   0.31%     5.74MB / 10.5MB   152kB / 94.2kB   2
+2026-03-24 17:56:34
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.82%     23.05MiB / 7.548GiB   0.30%     5.76MB / 10.7MB   152kB / 94.2kB   2
+2026-03-24 17:56:40
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.25%     23.27MiB / 7.548GiB   0.30%     5.78MB / 10.8MB   152kB / 94.2kB   2
+2026-03-24 17:56:46
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.27%     23.4MiB / 7.548GiB   0.30%     5.8MB / 10.9MB   152kB / 94.2kB   2
+2026-03-24 17:56:52
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.11%     23.08MiB / 7.548GiB   0.30%     5.83MB / 11.1MB   152kB / 94.2kB   2
+2026-03-24 17:56:58
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.08%     22.96MiB / 7.548GiB   0.30%     5.85MB / 11.2MB   152kB / 94.2kB   2
+2026-03-24 17:57:04
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     23.35MiB / 7.548GiB   0.30%     5.87MB / 11.3MB   152kB / 94.2kB   2
+2026-03-24 17:57:10
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.45%     23.3MiB / 7.548GiB   0.30%     5.9MB / 11.5MB   152kB / 94.2kB   2
+2026-03-24 17:57:16
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.58%     23.14MiB / 7.548GiB   0.30%     5.92MB / 11.6MB   152kB / 94.2kB   2
+2026-03-24 17:57:22
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.07%     23.22MiB / 7.548GiB   0.30%     5.95MB / 11.8MB   152kB / 94.2kB   2
+2026-03-24 17:57:28
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.19%     23.08MiB / 7.548GiB   0.30%     5.96MB / 11.9MB   152kB / 94.2kB   2
+2026-03-24 17:57:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     23.29MiB / 7.548GiB   0.30%     5.98MB / 12MB   152kB / 94.2kB   2
+2026-03-24 17:57:41
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.77%     22.94MiB / 7.548GiB   0.30%     6.01MB / 12.2MB   152kB / 94.2kB   2
+2026-03-24 17:57:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.56%     23.7MiB / 7.548GiB   0.31%     6.03MB / 12.3MB   152kB / 94.2kB   2
+2026-03-24 17:57:53
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.61%     23.27MiB / 7.548GiB   0.30%     6.05MB / 12.5MB   152kB / 94.2kB   2
+2026-03-24 17:57:59
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.03%     23.36MiB / 7.548GiB   0.30%     6.07MB / 12.6MB   152kB / 94.2kB   2
+2026-03-24 17:58:05
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.03%     23.29MiB / 7.548GiB   0.30%     6.1MB / 12.7MB   152kB / 94.2kB   2
+2026-03-24 17:58:11
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.38%     23.12MiB / 7.548GiB   0.30%     6.12MB / 12.9MB   152kB / 94.2kB   2
+2026-03-24 17:58:17
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.12%     23.29MiB / 7.548GiB   0.30%     6.15MB / 13MB   152kB / 94.2kB   2
+2026-03-24 17:58:23
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.13%     23.04MiB / 7.548GiB   0.30%     6.17MB / 13.2MB   152kB / 94.2kB   2
+2026-03-24 17:58:29
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     23.22MiB / 7.548GiB   0.30%     6.2MB / 13.3MB   152kB / 94.2kB   2
+2026-03-24 17:58:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.20%     23.47MiB / 7.548GiB   0.30%     6.22MB / 13.4MB   152kB / 94.2kB   2
+2026-03-24 17:58:41
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.83%     22.98MiB / 7.548GiB   0.30%     6.24MB / 13.6MB   152kB / 94.2kB   2
+2026-03-24 17:58:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.93%     23.51MiB / 7.548GiB   0.30%     6.26MB / 13.7MB   152kB / 94.2kB   2
+2026-03-24 17:58:53
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.15%     23.27MiB / 7.548GiB   0.30%     6.29MB / 13.9MB   152kB / 94.2kB   2
+2026-03-24 17:58:59
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     23.12MiB / 7.548GiB   0.30%     6.31MB / 14MB   152kB / 94.2kB   2
+2026-03-24 17:59:05
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.10%     23.18MiB / 7.548GiB   0.30%     6.33MB / 14.1MB   152kB / 94.2kB   2
+2026-03-24 17:59:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.52%     23.4MiB / 7.548GiB   0.30%     6.36MB / 14.3MB   152kB / 94.2kB   2
+2026-03-24 17:59:18
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.24%     23.3MiB / 7.548GiB   0.30%     6.38MB / 14.4MB   152kB / 94.2kB   2
+2026-03-24 17:59:24
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.06%     23.14MiB / 7.548GiB   0.30%     6.41MB / 14.5MB   152kB / 94.2kB   2
+2026-03-24 17:59:30
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.33%     23.08MiB / 7.548GiB   0.30%     6.43MB / 14.7MB   152kB / 94.2kB   2
+2026-03-24 17:59:36
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.57%     23.03MiB / 7.548GiB   0.30%     6.45MB / 14.8MB   152kB / 94.2kB   2
+2026-03-24 17:59:42
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.55%     23.41MiB / 7.548GiB   0.30%     6.48MB / 15MB   152kB / 94.2kB   2
+2026-03-24 17:59:48
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.29%     23.24MiB / 7.548GiB   0.30%     6.5MB / 15.1MB   152kB / 94.2kB   2
+2026-03-24 17:59:54
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     23.49MiB / 7.548GiB   0.30%     6.52MB / 15.2MB   152kB / 94.2kB   2
+2026-03-24 18:00:00
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.32%     23.12MiB / 7.548GiB   0.30%     6.54MB / 15.4MB   152kB / 94.2kB   2
+2026-03-24 18:00:06
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.30%     23.33MiB / 7.548GiB   0.30%     6.56MB / 15.5MB   152kB / 94.2kB   2
+2026-03-24 18:00:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.07%     23.02MiB / 7.548GiB   0.30%     6.59MB / 15.6MB   152kB / 94.2kB   2
+2026-03-24 18:00:18
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.21%     23.3MiB / 7.548GiB   0.30%     6.61MB / 15.8MB   152kB / 94.2kB   2
+2026-03-24 18:00:24
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     23.07MiB / 7.548GiB   0.30%     6.63MB / 15.9MB   152kB / 94.2kB   2
+2026-03-24 18:00:30
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.38%     23.68MiB / 7.548GiB   0.31%     6.66MB / 16MB   152kB / 94.2kB   2
+2026-03-24 18:00:36
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.69%     23.25MiB / 7.548GiB   0.30%     6.68MB / 16.2MB   152kB / 94.2kB   2
+2026-03-24 18:00:42
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.77%     23.24MiB / 7.548GiB   0.30%     6.71MB / 16.3MB   152kB / 94.2kB   2
+2026-03-24 18:00:49
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     23.26MiB / 7.548GiB   0.30%     6.73MB / 16.4MB   152kB / 94.2kB   2
+2026-03-24 18:00:55
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.87%     23.13MiB / 7.548GiB   0.30%     6.75MB / 16.6MB   152kB / 94.2kB   2
+2026-03-24 18:01:01
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.99%     23.3MiB / 7.548GiB   0.30%     6.78MB / 16.7MB   152kB / 94.2kB   2
+2026-03-24 18:01:07
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.70%     23.11MiB / 7.548GiB   0.30%     6.8MB / 16.8MB   152kB / 94.2kB   2
+2026-03-24 18:01:13
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.08%     23.15MiB / 7.548GiB   0.30%     6.82MB / 17MB   152kB / 94.2kB   2
+2026-03-24 18:01:19
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.17%     23.04MiB / 7.548GiB   0.30%     6.85MB / 17.1MB   152kB / 94.2kB   2
+2026-03-24 18:01:25
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.17%     23.44MiB / 7.548GiB   0.30%     6.87MB / 17.3MB   152kB / 94.2kB   2
+2026-03-24 18:01:31
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.66%     22.82MiB / 7.548GiB   0.30%     6.9MB / 17.4MB   152kB / 94.2kB   2
+2026-03-24 18:01:37
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.45%     23.05MiB / 7.548GiB   0.30%     6.92MB / 17.5MB   152kB / 94.2kB   2
+2026-03-24 18:01:43
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.03%     23.39MiB / 7.548GiB   0.30%     6.95MB / 17.7MB   152kB / 94.2kB   2
+2026-03-24 18:01:49
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.08%     23.1MiB / 7.548GiB   0.30%     6.97MB / 17.8MB   152kB / 94.2kB   2
+2026-03-24 18:01:55
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O      BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.12%     23.53MiB / 7.548GiB   0.30%     7MB / 18MB   152kB / 94.2kB   2
+2026-03-24 18:02:01
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   2.06%     23.25MiB / 7.548GiB   0.30%     7.02MB / 18.1MB   152kB / 94.2kB   2
+2026-03-24 18:02:07
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.24%     23.02MiB / 7.548GiB   0.30%     7.04MB / 18.2MB   152kB / 94.2kB   2
+2026-03-24 18:02:13
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.94%     22.95MiB / 7.548GiB   0.30%     7.06MB / 18.4MB   152kB / 94.2kB   2
+2026-03-24 18:02:19
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.73%     23.27MiB / 7.548GiB   0.30%     7.09MB / 18.5MB   152kB / 94.2kB   2
+2026-03-24 18:02:26
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     23.1MiB / 7.548GiB   0.30%     7.11MB / 18.6MB   152kB / 94.2kB   2
+2026-03-24 18:02:32
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.77%     23.12MiB / 7.548GiB   0.30%     7.14MB / 18.8MB   152kB / 94.2kB   2
+2026-03-24 18:02:38
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.14%     23.3MiB / 7.548GiB   0.30%     7.16MB / 18.9MB   152kB / 94.2kB   2
+2026-03-24 18:02:44
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     23.17MiB / 7.548GiB   0.30%     7.18MB / 19.1MB   152kB / 94.2kB   2
+2026-03-24 18:02:50
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.48%     23.2MiB / 7.548GiB   0.30%     7.21MB / 19.2MB   152kB / 94.2kB   2
+2026-03-24 18:02:56
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.56%     23.26MiB / 7.548GiB   0.30%     7.23MB / 19.3MB   152kB / 94.2kB   2
+2026-03-24 18:03:02
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.49%     23.04MiB / 7.548GiB   0.30%     7.26MB / 19.5MB   152kB / 94.2kB   2
+2026-03-24 18:03:08
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.31%     23.48MiB / 7.548GiB   0.30%     7.28MB / 19.6MB   152kB / 94.2kB   2
+2026-03-24 18:03:14
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.95%     23.17MiB / 7.548GiB   0.30%     7.3MB / 19.7MB   152kB / 94.2kB   2
+2026-03-24 18:03:20
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.53%     23.29MiB / 7.548GiB   0.30%     7.33MB / 19.9MB   152kB / 94.2kB   2
+2026-03-24 18:03:26
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.26%     23.25MiB / 7.548GiB   0.30%     7.36MB / 20MB   152kB / 94.2kB   2
+2026-03-24 18:03:32
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.88%     22.97MiB / 7.548GiB   0.30%     7.38MB / 20.2MB   152kB / 94.2kB   2
+2026-03-24 18:03:38
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.37%     22.95MiB / 7.548GiB   0.30%     7.41MB / 20.3MB   152kB / 94.2kB   2
+2026-03-24 18:03:44
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.95%     23.02MiB / 7.548GiB   0.30%     7.43MB / 20.4MB   152kB / 94.2kB   2
+2026-03-24 18:03:50
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.59%     23.39MiB / 7.548GiB   0.30%     7.46MB / 20.6MB   152kB / 94.2kB   2
+2026-03-24 18:03:57
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT   MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.84%     23MiB / 7.548GiB    0.30%     7.48MB / 20.7MB   152kB / 94.2kB   2
+2026-03-24 18:04:03
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.96%     23.26MiB / 7.548GiB   0.30%     7.51MB / 20.9MB   152kB / 94.2kB   2
+2026-03-24 18:04:09
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.91%     23.08MiB / 7.548GiB   0.30%     7.53MB / 21MB   152kB / 94.2kB   2
+2026-03-24 18:04:15
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     23.25MiB / 7.548GiB   0.30%     7.55MB / 21.1MB   152kB / 94.2kB   2
+2026-03-24 18:04:21
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.38%     23.39MiB / 7.548GiB   0.30%     7.58MB / 21.3MB   152kB / 94.2kB   2
+2026-03-24 18:04:27
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.25%     23.27MiB / 7.548GiB   0.30%     7.6MB / 21.4MB   152kB / 94.2kB   2
+2026-03-24 18:04:33
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.06%     23.12MiB / 7.548GiB   0.30%     7.63MB / 21.6MB   152kB / 94.2kB   2
+2026-03-24 18:04:39
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.78%     23.06MiB / 7.548GiB   0.30%     7.65MB / 21.7MB   152kB / 94.2kB   2
+2026-03-24 18:04:45
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     23.11MiB / 7.548GiB   0.30%     7.67MB / 21.8MB   152kB / 94.2kB   2
+2026-03-24 18:04:51
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.35%     23.57MiB / 7.548GiB   0.31%     7.71MB / 22MB   152kB / 94.2kB   2
+2026-03-24 18:04:57
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.13%     23.24MiB / 7.548GiB   0.30%     7.73MB / 22.1MB   152kB / 94.2kB   2
+2026-03-24 18:05:03
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.11%     22.62MiB / 7.548GiB   0.29%     7.75MB / 22.2MB   152kB / 94.2kB   2
+2026-03-24 18:05:09
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.14%     22.45MiB / 7.548GiB   0.29%     7.77MB / 22.4MB   152kB / 94.2kB   2
+2026-03-24 18:05:15
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.15%     22.78MiB / 7.548GiB   0.29%     7.8MB / 22.5MB   152kB / 94.2kB   2
+2026-03-24 18:05:21
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   2.00%     22.74MiB / 7.548GiB   0.29%     7.83MB / 22.7MB   152kB / 94.2kB   2
+2026-03-24 18:05:27
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.26%     22.77MiB / 7.548GiB   0.29%     7.85MB / 22.8MB   152kB / 94.2kB   2
+2026-03-24 18:05:34
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     22.77MiB / 7.548GiB   0.29%     7.88MB / 22.9MB   152kB / 94.2kB   2
+2026-03-24 18:05:40
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.19%     22.39MiB / 7.548GiB   0.29%     7.9MB / 23.1MB   152kB / 94.2kB   2
+2026-03-24 18:05:46
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.50%     22.48MiB / 7.548GiB   0.29%     7.92MB / 23.2MB   152kB / 94.2kB   2
+2026-03-24 18:05:52
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.38%     22.5MiB / 7.548GiB   0.29%     7.95MB / 23.4MB   152kB / 94.2kB   2
+2026-03-24 18:05:58
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.10%     22.62MiB / 7.548GiB   0.29%     7.97MB / 23.5MB   152kB / 94.2kB   2
+2026-03-24 18:06:04
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O        BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     22.48MiB / 7.548GiB   0.29%     8MB / 23.6MB   152kB / 94.2kB   2
+2026-03-24 18:06:10
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.44%     22.22MiB / 7.548GiB   0.29%     8.02MB / 23.7MB   152kB / 94.2kB   2
+2026-03-24 18:06:16
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.42%     22.35MiB / 7.548GiB   0.29%     8.04MB / 23.9MB   152kB / 94.2kB   2
+2026-03-24 18:06:22
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.44%     22.29MiB / 7.548GiB   0.29%     8.07MB / 24MB   152kB / 94.2kB   2
+2026-03-24 18:06:28
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.16%     22.63MiB / 7.548GiB   0.29%     8.09MB / 24.2MB   152kB / 94.2kB   2
+2026-03-24 18:06:34
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.96%     22.55MiB / 7.548GiB   0.29%     8.12MB / 24.3MB   152kB / 94.2kB   2
+2026-03-24 18:06:40
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.03%     22.24MiB / 7.548GiB   0.29%     8.14MB / 24.4MB   152kB / 94.2kB   2
+2026-03-24 18:06:46
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.69%     21.14MiB / 7.548GiB   0.27%     8.17MB / 24.5MB   152kB / 94.2kB   2
+2026-03-24 18:06:52
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     21.09MiB / 7.548GiB   0.27%     8.2MB / 24.7MB   152kB / 94.2kB   2
+2026-03-24 18:06:58
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.20%     20.88MiB / 7.548GiB   0.27%     8.21MB / 24.8MB   152kB / 94.2kB   2
+2026-03-24 18:07:04
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.10%     21.02MiB / 7.548GiB   0.27%     8.24MB / 25MB   152kB / 94.2kB   2
+2026-03-24 18:07:11
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.47%     19.59MiB / 7.548GiB   0.25%     8.27MB / 25.1MB   152kB / 94.2kB   2
+2026-03-24 18:07:17
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.94%     19.28MiB / 7.548GiB   0.25%     8.29MB / 25.2MB   152kB / 94.2kB   2
+2026-03-24 18:07:23
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.74%     19.4MiB / 7.548GiB   0.25%     8.32MB / 25.4MB   152kB / 94.2kB   2
+2026-03-24 18:07:29
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     18.91MiB / 7.548GiB   0.24%     8.34MB / 25.5MB   152kB / 94.2kB   2
+2026-03-24 18:07:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.17%     19.19MiB / 7.548GiB   0.25%     8.36MB / 25.6MB   152kB / 94.2kB   2
+2026-03-24 18:07:41
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.64%     19.11MiB / 7.548GiB   0.25%     8.39MB / 25.8MB   152kB / 94.2kB   2
+2026-03-24 18:07:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT   MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.77%     19MiB / 7.548GiB    0.25%     8.42MB / 25.9MB   152kB / 94.2kB   2
+2026-03-24 18:07:53
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.97%     19.19MiB / 7.548GiB   0.25%     8.44MB / 26.1MB   152kB / 94.2kB   2
+2026-03-24 18:07:59
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.06%     19.16MiB / 7.548GiB   0.25%     8.46MB / 26.2MB   152kB / 94.2kB   2
+2026-03-24 18:08:05
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.05%     19.25MiB / 7.548GiB   0.25%     8.48MB / 26.3MB   152kB / 94.2kB   2
+2026-03-24 18:08:11
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.86%     19.11MiB / 7.548GiB   0.25%     8.51MB / 26.5MB   152kB / 94.2kB   2
+2026-03-24 18:08:17
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.97%     18.9MiB / 7.548GiB   0.24%     8.54MB / 26.6MB   152kB / 94.2kB   2
+2026-03-24 18:08:23
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.05%     18.95MiB / 7.548GiB   0.25%     8.56MB / 26.8MB   152kB / 94.2kB   2
+2026-03-24 18:08:29
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.22%     19.02MiB / 7.548GiB   0.25%     8.59MB / 26.9MB   152kB / 94.2kB   2
+2026-03-24 18:08:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.13%     18.96MiB / 7.548GiB   0.25%     8.61MB / 27MB   152kB / 94.2kB   2
+2026-03-24 18:08:42
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.71%     19.14MiB / 7.548GiB   0.25%     8.64MB / 27.2MB   152kB / 94.2kB   2
+2026-03-24 18:08:48
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     19.14MiB / 7.548GiB   0.25%     8.66MB / 27.3MB   152kB / 94.2kB   2
+2026-03-24 18:08:54
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     19.01MiB / 7.548GiB   0.25%     8.68MB / 27.4MB   152kB / 94.2kB   2
+2026-03-24 18:09:00
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.29%     18.95MiB / 7.548GiB   0.25%     8.7MB / 27.6MB   152kB / 94.2kB   2
+2026-03-24 18:09:06
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.55%     19.51MiB / 7.548GiB   0.25%     8.73MB / 27.7MB   152kB / 94.2kB   2
+2026-03-24 18:09:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.12%     19.43MiB / 7.548GiB   0.25%     8.75MB / 27.8MB   152kB / 94.2kB   2
+2026-03-24 18:09:18
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.82%     19.17MiB / 7.548GiB   0.25%     8.78MB / 28MB   152kB / 94.2kB   2
+2026-03-24 18:09:24
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.71%     19.02MiB / 7.548GiB   0.25%     8.8MB / 28.1MB   152kB / 94.2kB   2
+2026-03-24 18:09:30
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     19.19MiB / 7.548GiB   0.25%     8.82MB / 28.2MB   152kB / 94.2kB   2
+2026-03-24 18:09:36
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     18.9MiB / 7.548GiB   0.24%     8.84MB / 28.4MB   152kB / 94.2kB   2
+2026-03-24 18:09:42
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.38%     19.05MiB / 7.548GiB   0.25%     8.87MB / 28.5MB   152kB / 94.2kB   2
+2026-03-24 18:09:48
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT   MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     19MiB / 7.548GiB    0.25%     8.89MB / 28.6MB   152kB / 94.2kB   2
+2026-03-24 18:09:54
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.66%     18.93MiB / 7.548GiB   0.24%     8.92MB / 28.8MB   152kB / 94.2kB   2
+2026-03-24 18:10:00
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.48%     19.17MiB / 7.548GiB   0.25%     8.94MB / 28.9MB   152kB / 94.2kB   2
+2026-03-24 18:10:06
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.97%     19.23MiB / 7.548GiB   0.25%     8.96MB / 29MB   152kB / 94.2kB   2
+2026-03-24 18:10:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.88%     19.18MiB / 7.548GiB   0.25%     8.99MB / 29.2MB   152kB / 94.2kB   2
+2026-03-24 18:10:19
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.87%     19.22MiB / 7.548GiB   0.25%     9.01MB / 29.3MB   152kB / 94.2kB   2
+2026-03-24 18:10:25
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     18.99MiB / 7.548GiB   0.25%     9.04MB / 29.4MB   152kB / 94.2kB   2
+2026-03-24 18:10:31
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.52%     19.45MiB / 7.548GiB   0.25%     9.06MB / 29.6MB   152kB / 94.2kB   2
+2026-03-24 18:10:37
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.89%     18.91MiB / 7.548GiB   0.24%     9.08MB / 29.7MB   152kB / 94.2kB   2
+2026-03-24 18:10:43
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.82%     18.47MiB / 7.548GiB   0.24%     9.11MB / 29.9MB   152kB / 94.2kB   2
+2026-03-24 18:10:49
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.00%     18.89MiB / 7.548GiB   0.24%     9.13MB / 30MB   152kB / 94.2kB   2
+2026-03-24 18:10:55
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.20%     19.08MiB / 7.548GiB   0.25%     9.16MB / 30.1MB   152kB / 94.2kB   2
+2026-03-24 18:11:01
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.04%     18.73MiB / 7.548GiB   0.24%     9.18MB / 30.3MB   152kB / 94.2kB   2
+2026-03-24 18:11:07
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.55%     18.96MiB / 7.548GiB   0.25%     9.2MB / 30.4MB   152kB / 94.2kB   2
+2026-03-24 18:11:13
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.94%     18.35MiB / 7.548GiB   0.24%     9.23MB / 30.5MB   152kB / 94.2kB   2
+2026-03-24 18:11:19
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.68%     19.05MiB / 7.548GiB   0.25%     9.25MB / 30.7MB   152kB / 94.2kB   2
+2026-03-24 18:11:25
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.36%     19.59MiB / 7.548GiB   0.25%     9.27MB / 30.8MB   152kB / 94.2kB   2
+2026-03-24 18:11:31
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.82%     19.11MiB / 7.548GiB   0.25%     9.3MB / 30.9MB   152kB / 94.2kB   2
+2026-03-24 18:11:37
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.27%     18.84MiB / 7.548GiB   0.24%     9.32MB / 31.1MB   152kB / 94.2kB   2
+2026-03-24 18:11:43
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.18%     18.79MiB / 7.548GiB   0.24%     9.34MB / 31.2MB   152kB / 94.2kB   2
+2026-03-24 18:11:50
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.16%     18.71MiB / 7.548GiB   0.24%     9.37MB / 31.3MB   152kB / 94.2kB   2
+2026-03-24 18:11:56
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.50%     18.52MiB / 7.548GiB   0.24%     9.39MB / 31.5MB   152kB / 94.2kB   2
+2026-03-24 18:12:02
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.91%     18.98MiB / 7.548GiB   0.25%     9.42MB / 31.6MB   152kB / 94.2kB   2
+2026-03-24 18:12:08
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     18.88MiB / 7.548GiB   0.24%     9.44MB / 31.7MB   152kB / 94.2kB   2
+2026-03-24 18:12:14
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.92%     18.82MiB / 7.548GiB   0.24%     9.46MB / 31.9MB   152kB / 94.2kB   2
+2026-03-24 18:12:20
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.42%     18.54MiB / 7.548GiB   0.24%     9.49MB / 32MB   152kB / 94.2kB   2
+2026-03-24 18:12:26
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.55%     18.97MiB / 7.548GiB   0.25%     9.51MB / 32.1MB   152kB / 94.2kB   2
+2026-03-24 18:12:32
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.53%     18.82MiB / 7.548GiB   0.24%     9.54MB / 32.3MB   152kB / 94.2kB   2
+2026-03-24 18:12:38
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.14%     18.62MiB / 7.548GiB   0.24%     9.56MB / 32.4MB   152kB / 94.2kB   2
+2026-03-24 18:12:44
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.94%     18.34MiB / 7.548GiB   0.24%     9.59MB / 32.5MB   152kB / 94.2kB   2
+2026-03-24 18:12:50
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.95%     18.83MiB / 7.548GiB   0.24%     9.61MB / 32.7MB   152kB / 94.2kB   2
+2026-03-24 18:12:56
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.29%     18.78MiB / 7.548GiB   0.24%     9.63MB / 32.8MB   152kB / 94.2kB   2
+2026-03-24 18:13:02
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.07%     18.84MiB / 7.548GiB   0.24%     9.66MB / 33MB   152kB / 94.2kB   2
+2026-03-24 18:13:08
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.22%     18.58MiB / 7.548GiB   0.24%     9.68MB / 33.1MB   152kB / 94.2kB   2
+2026-03-24 18:13:14
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.97%     18.59MiB / 7.548GiB   0.24%     9.7MB / 33.2MB   152kB / 94.2kB   2
+2026-03-24 18:13:21
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.67%     18.78MiB / 7.548GiB   0.24%     9.73MB / 33.4MB   152kB / 94.2kB   2
+2026-03-24 18:13:27
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.58%     18.77MiB / 7.548GiB   0.24%     9.75MB / 33.5MB   152kB / 94.2kB   2
+2026-03-24 18:13:33
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.94%     18.78MiB / 7.548GiB   0.24%     9.78MB / 33.7MB   152kB / 94.2kB   2
+2026-03-24 18:13:39
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.08%     18.81MiB / 7.548GiB   0.24%     9.8MB / 33.8MB   152kB / 94.2kB   2
+2026-03-24 18:13:45
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.05%     18.34MiB / 7.548GiB   0.24%     9.83MB / 33.9MB   152kB / 94.2kB   2
+2026-03-24 18:13:51
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.46%     18.03MiB / 7.548GiB   0.23%     9.86MB / 34.1MB   152kB / 94.2kB   2
+2026-03-24 18:13:57
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.75%     17.91MiB / 7.548GiB   0.23%     9.88MB / 34.2MB   152kB / 94.2kB   2
+2026-03-24 18:14:03
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.04%     18.23MiB / 7.548GiB   0.24%     9.9MB / 34.3MB   152kB / 94.2kB   2
+2026-03-24 18:14:09
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.88%     17.85MiB / 7.548GiB   0.23%     9.92MB / 34.5MB   152kB / 94.2kB   2
+2026-03-24 18:14:15
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.23%     17.73MiB / 7.548GiB   0.23%     9.94MB / 34.6MB   152kB / 94.2kB   2
+2026-03-24 18:14:21
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.90%     18.02MiB / 7.548GiB   0.23%     9.98MB / 34.8MB   152kB / 94.2kB   2
+2026-03-24 18:14:27
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.33%     18.35MiB / 7.548GiB   0.24%     10MB / 34.9MB   152kB / 94.2kB   2
+2026-03-24 18:14:33
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O       BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.18%     18.01MiB / 7.548GiB   0.23%     10MB / 35MB   152kB / 94.2kB   2
+2026-03-24 18:14:39
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.05%     17.93MiB / 7.548GiB   0.23%     10MB / 35.1MB   152kB / 94.2kB   2
+2026-03-24 18:14:45
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.23%     17.88MiB / 7.548GiB   0.23%     10.1MB / 35.3MB   152kB / 94.2kB   2
+2026-03-24 18:14:52
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.72%     17.91MiB / 7.548GiB   0.23%     10.1MB / 35.4MB   152kB / 94.2kB   2
+2026-03-24 18:14:58
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.15%     18.23MiB / 7.548GiB   0.24%     10.1MB / 35.6MB   152kB / 94.2kB   2
+2026-03-24 18:15:04
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.99%     18.13MiB / 7.548GiB   0.23%     10.1MB / 35.7MB   152kB / 94.2kB   2
+2026-03-24 18:15:10
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.32%     17.89MiB / 7.548GiB   0.23%     10.2MB / 35.8MB   152kB / 94.2kB   2
+2026-03-24 18:15:16
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.63%     17.8MiB / 7.548GiB   0.23%     10.2MB / 36MB   152kB / 94.2kB   2
+2026-03-24 18:15:22
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.76%     17.96MiB / 7.548GiB   0.23%     10.2MB / 36.1MB   152kB / 94.2kB   2
+2026-03-24 18:15:28
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.07%     17.91MiB / 7.548GiB   0.23%     10.2MB / 36.3MB   152kB / 94.2kB   2
+2026-03-24 18:15:34
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.09%     17.55MiB / 7.548GiB   0.23%     10.3MB / 36.4MB   152kB / 94.2kB   2
+2026-03-24 18:15:40
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.52%     17.86MiB / 7.548GiB   0.23%     10.3MB / 36.5MB   152kB / 94.2kB   2
+2026-03-24 18:15:46
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.40%     18.1MiB / 7.548GiB   0.23%     10.3MB / 36.6MB   152kB / 94.2kB   2
+2026-03-24 18:15:52
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.32%     17.82MiB / 7.548GiB   0.23%     10.3MB / 36.8MB   152kB / 94.2kB   2
+2026-03-24 18:15:58
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.34%     18.11MiB / 7.548GiB   0.23%     10.4MB / 36.9MB   152kB / 94.2kB   2
+2026-03-24 18:16:04
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.98%     17.82MiB / 7.548GiB   0.23%     10.4MB / 37.1MB   152kB / 94.2kB   2
+2026-03-24 18:16:10
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.57%     17.96MiB / 7.548GiB   0.23%     10.4MB / 37.2MB   152kB / 94.2kB   2
+2026-03-24 18:16:16
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.88%     17.82MiB / 7.548GiB   0.23%     10.4MB / 37.3MB   152kB / 94.2kB   2
+2026-03-24 18:16:22
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.01%     18.07MiB / 7.548GiB   0.23%     10.5MB / 37.5MB   152kB / 94.2kB   2
+2026-03-24 18:16:29
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.20%     18.07MiB / 7.548GiB   0.23%     10.5MB / 37.6MB   152kB / 94.2kB   2
+2026-03-24 18:16:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.14%     18.03MiB / 7.548GiB   0.23%     10.5MB / 37.7MB   152kB / 94.2kB   2
+2026-03-24 18:16:41
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.60%     18.09MiB / 7.548GiB   0.23%     10.5MB / 37.9MB   152kB / 94.2kB   2
+2026-03-24 18:16:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT   MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.98%     18MiB / 7.548GiB    0.23%     10.6MB / 38MB   152kB / 94.2kB   2
+2026-03-24 18:16:53
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.84%     17.9MiB / 7.548GiB   0.23%     10.6MB / 38.2MB   152kB / 94.2kB   2
+2026-03-24 18:16:59
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.18%     17.89MiB / 7.548GiB   0.23%     10.6MB / 38.3MB   152kB / 94.2kB   2
+2026-03-24 18:17:05
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.15%     17.65MiB / 7.548GiB   0.23%     10.6MB / 38.4MB   152kB / 94.2kB   2
+2026-03-24 18:17:11
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.52%     18.19MiB / 7.548GiB   0.24%     10.7MB / 38.6MB   152kB / 94.2kB   2
+2026-03-24 18:17:17
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.88%     18.08MiB / 7.548GiB   0.23%     10.7MB / 38.7MB   152kB / 94.2kB   2
+2026-03-24 18:17:23
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.09%     17.93MiB / 7.548GiB   0.23%     10.7MB / 38.9MB   152kB / 94.2kB   2
+2026-03-24 18:17:29
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.02%     17.73MiB / 7.548GiB   0.23%     10.7MB / 39MB   152kB / 94.2kB   2
+2026-03-24 18:17:35
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.17%     17.55MiB / 7.548GiB   0.23%     10.8MB / 39.1MB   152kB / 94.2kB   2
+2026-03-24 18:17:41
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.31%     17.65MiB / 7.548GiB   0.23%     10.8MB / 39.3MB   152kB / 94.2kB   2
+2026-03-24 18:17:47
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.81%     18.05MiB / 7.548GiB   0.23%     10.8MB / 39.4MB   152kB / 94.2kB   2
+2026-03-24 18:17:53
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.17%     17.86MiB / 7.548GiB   0.23%     10.8MB / 39.5MB   152kB / 94.2kB   2
+2026-03-24 18:17:59
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.03%     17.33MiB / 7.548GiB   0.22%     10.9MB / 39.7MB   152kB / 94.2kB   2
+2026-03-24 18:18:06
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.42%     17.41MiB / 7.548GiB   0.23%     10.9MB / 39.8MB   152kB / 94.2kB   2
+2026-03-24 18:18:12
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.94%     17.07MiB / 7.548GiB   0.22%     10.9MB / 40MB   152kB / 94.2kB   2
+2026-03-24 18:18:18
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.82%     17.69MiB / 7.548GiB   0.23%     10.9MB / 40.1MB   152kB / 94.2kB   2
+2026-03-24 18:18:24
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   0.94%     17.17MiB / 7.548GiB   0.22%     11MB / 40.2MB   152kB / 94.2kB   2
+2026-03-24 18:18:30
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.18%     17.17MiB / 7.548GiB   0.22%     11MB / 40.4MB   152kB / 94.2kB   2
+2026-03-24 18:18:36
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.40%     17.49MiB / 7.548GiB   0.23%     11MB / 40.5MB   152kB / 94.2kB   2
+2026-03-24 18:18:42
+CONTAINER ID   NAME                      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+d07e9ab5aa8b   iot-project-simulator-1   1.60%     17.45MiB / 7.548GiB   0.23%     11MB / 40.6MB   152kB / 94.2kB   2

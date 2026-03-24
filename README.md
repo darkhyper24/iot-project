@@ -4,48 +4,48 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
 
 ## Where To Start
 
-- Run the project: [docker-compose.yaml](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/docker-compose.yaml)
-- Main simulator entrypoint: [simulator/main.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/main.py)
-- Manual command reference: [DOCKER_COMMANDS.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/DOCKER_COMMANDS.md)
-- Step-by-step manual test flow: [MANUAL_TESTING.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/MANUAL_TESTING.md)
+- Run the project: [docker-compose.yaml](./docker-compose.yaml)
+- Main simulator entrypoint: [simulator/main.py](./simulator/main.py)
+- Manual command reference: [DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md)
+- Step-by-step manual test flow: [MANUAL_TESTING.md](./MANUAL_TESTING.md)
 
 ## Project Structure
 
 ### Top-level files
 
-- [README.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/README.md)
+- [README.md](./README.md)
   Repository overview and file map.
 
-- [main.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/main.py)
+- [main.py](./main.py)
   Thin launcher that starts the simulator package with `asyncio.run(...)`.
 
-- [Dockerfile](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/Dockerfile)
+- [Dockerfile](./Dockerfile)
   Builds the simulator container image.
 
-- [docker-compose.yaml](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/docker-compose.yaml)
+- [docker-compose.yaml](./docker-compose.yaml)
   Defines the full local stack:
   - `simulator`
   - `postgres`
   - `mqtt-broker`
 
-- [requirements.txt](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/requirements.txt)
+- [requirements.txt](./requirements.txt)
   Python dependencies used by the simulator.
 
-- [.gitignore](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/.gitignore)
+- [.gitignore](./.gitignore)
   Git ignore rules.
 
-- [LICENSE](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/LICENSE)
+- [LICENSE](./LICENSE)
   Project license file.
 
-- [DOCKER_COMMANDS.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/DOCKER_COMMANDS.md)
+- [DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md)
   Copy/paste command reference for interacting with one room, one floor, or the whole fleet.
 
-- [MANUAL_TESTING.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/MANUAL_TESTING.md)
+- [MANUAL_TESTING.md](./MANUAL_TESTING.md)
   Full step-by-step manual testing guide for sections 1 and 2.
 
 ## `config/`
 
-- [config/config.yaml](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/config/config.yaml)
+- [config/config.yaml](./config/config.yaml)
   Main simulator configuration:
   - building size
   - simulation timing
@@ -54,17 +54,17 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
   - fault settings
   - heartbeat settings
 
-- [config/mosquitto.conf](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/config/mosquitto.conf)
+- [config/mosquitto.conf](./config/mosquitto.conf)
   Mosquitto broker configuration used by Docker Compose.
 
 ## `simulator/`
 
 This folder contains the simulator application code.
 
-- [simulator/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/__init__.py)
+- [simulator/**init**.py](./simulator/__init__.py)
   Marks `simulator` as a Python package.
 
-- [simulator/main.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/main.py)
+- [simulator/main.py](./simulator/main.py)
   Main async application bootstrap. It:
   - loads config
   - connects to Postgres
@@ -72,10 +72,10 @@ This folder contains the simulator application code.
   - initializes the world engine
   - handles shutdown
 
-- [simulator/config.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/config.py)
+- [simulator/config.py](./simulator/config.py)
   Loads YAML config and applies environment variable overrides.
 
-- [simulator/physics.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/physics.py)
+- [simulator/physics.py](./simulator/physics.py)
   Pure simulation logic helpers:
   - outside temperature
   - thermal leakage
@@ -84,7 +84,7 @@ This folder contains the simulator application code.
   - light correlation
   - humidity updates
 
-- [simulator/faults.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/faults.py)
+- [simulator/faults.py](./simulator/faults.py)
   Fault injection logic for:
   - sensor drift
   - frozen sensor
@@ -93,10 +93,10 @@ This folder contains the simulator application code.
 
 ## `simulator/models/`
 
-- [simulator/models/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/models/__init__.py)
+- [simulator/models/**init**.py](./simulator/models/__init__.py)
   Package marker.
 
-- [simulator/models/room.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/models/room.py)
+- [simulator/models/room.py](./simulator/models/room.py)
   Defines the `Room` model. Each room stores:
   - identity
   - environmental state
@@ -108,10 +108,10 @@ This folder contains the simulator application code.
 
 ## `simulator/engine/`
 
-- [simulator/engine/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/__init__.py)
+- [simulator/engine/**init**.py](./simulator/engine/__init__.py)
   Package marker.
 
-- [simulator/engine/world_engine.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/world_engine.py)
+- [simulator/engine/world_engine.py](./simulator/engine/world_engine.py)
   Core orchestration layer. It:
   - creates the fleet of rooms
   - starts one asyncio task per room
@@ -120,7 +120,7 @@ This folder contains the simulator application code.
   - tracks fleet health
   - handles drift compensation and startup jitter
 
-- [simulator/engine/commands.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/commands.py)
+- [simulator/engine/commands.py](./simulator/engine/commands.py)
   Parses MQTT command messages and applies them to:
   - one room
   - one floor
@@ -128,10 +128,10 @@ This folder contains the simulator application code.
 
 ## `simulator/persistence/`
 
-- [simulator/persistence/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/__init__.py)
+- [simulator/persistence/**init**.py](./simulator/persistence/__init__.py)
   Package marker.
 
-- [simulator/persistence/database.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/database.py)
+- [simulator/persistence/database.py](./simulator/persistence/database.py)
   Async Postgres persistence layer. It handles:
   - DB connection
   - schema creation
@@ -139,15 +139,31 @@ This folder contains the simulator application code.
   - periodic save points
   - command-triggered save points
 
-
-
 ## Typical Navigation
 
 If you want to understand:
 
-- Startup flow: [main.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/main.py) -> [simulator/main.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/main.py)
-- Room behavior: [room.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/models/room.py) + [physics.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/physics.py) + [faults.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/faults.py)
-- Fleet/task orchestration: [world_engine.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/world_engine.py)
-- MQTT command handling: [commands.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/commands.py)
-- Persistence: [database.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/database.py)
-- Manual demo/testing commands: [DOCKER_COMMANDS.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/DOCKER_COMMANDS.md)
+- Startup flow: [main.py](./main.py) -> [simulator/main.py](./simulator/main.py)
+- Room behavior: [room.py](./simulator/models/room.py) + [physics.py](./simulator/physics.py) + [faults.py](./simulator/faults.py)
+- Fleet/task orchestration: [world_engine.py](./simulator/engine/world_engine.py)
+- MQTT command handling: [commands.py](./simulator/engine/commands.py)
+- Persistence: [database.py](./simulator/persistence/database.py)
+- Manual demo/testing commands: [DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md)
+
+## Performance Logging Script
+
+Use `performance.sh` to run the stack and collect per-run logs under `perf_logs/run_<RUN_ID>/`.
+
+**Run it:**
+
+```bash
+chmod +x performance.sh
+./performance.sh
+```
+
+**What it produces:**
+
+- `perf_logs/run_<RUN_ID>/simulator.log`
+- `perf_logs/run_<RUN_ID>/latency.log`
+- `perf_logs/run_<RUN_ID>/stats.log`
+- `perf_logs/run_<RUN_ID>/run.info`

@@ -49,12 +49,29 @@ async def main() -> None:
     loop = asyncio.get_running_loop()
     stop_event = asyncio.Event()
 
+    async def monitor_event_loop(period: float = 1.0, threshold: float = 0.2) -> None:
+        next_time = loop.time() + period
+        while True:
+            await asyncio.sleep(max(0, next_time - loop.time()))
+            now = loop.time()
+            delay = now - next_time
+            logger.info("Event loop latency %.5f s", delay)
+            if delay > threshold:
+                logger.warning(
+                    "Event loop latency %.5f s exceeds %.5f s",
+                    delay,
+                    threshold,
+                )
+            next_time += period
+
     def _handle_signal():
         logger.info("Received shutdown signal")
         stop_event.set()
 
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(sig, _handle_signal)
+
+    monitor_task = asyncio.create_task(monitor_event_loop())
 
     # Run engine in background, wait for stop signal or engine crash
     engine_task = asyncio.create_task(engine.run())
@@ -64,6 +81,7 @@ async def main() -> None:
 
     if not engine_task.done():
         engine_task.cancel()
+    monitor_task.cancel()
 
     # Shutdown
     await engine.shutdown()
