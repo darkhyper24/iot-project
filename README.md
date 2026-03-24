@@ -61,7 +61,7 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
 
 This folder contains the simulator application code.
 
-- [simulator/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/__init__.py)
+- [simulator/**init**.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/__init__.py)
   Marks `simulator` as a Python package.
 
 - [simulator/main.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/main.py)
@@ -93,7 +93,7 @@ This folder contains the simulator application code.
 
 ## `simulator/models/`
 
-- [simulator/models/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/models/__init__.py)
+- [simulator/models/**init**.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/models/__init__.py)
   Package marker.
 
 - [simulator/models/room.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/models/room.py)
@@ -108,7 +108,7 @@ This folder contains the simulator application code.
 
 ## `simulator/engine/`
 
-- [simulator/engine/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/__init__.py)
+- [simulator/engine/**init**.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/__init__.py)
   Package marker.
 
 - [simulator/engine/world_engine.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/world_engine.py)
@@ -128,7 +128,7 @@ This folder contains the simulator application code.
 
 ## `simulator/persistence/`
 
-- [simulator/persistence/__init__.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/__init__.py)
+- [simulator/persistence/**init**.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/__init__.py)
   Package marker.
 
 - [simulator/persistence/database.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/database.py)
@@ -138,8 +138,6 @@ This folder contains the simulator application code.
   - loading room state on startup
   - periodic save points
   - command-triggered save points
-
-
 
 ## Typical Navigation
 
@@ -151,3 +149,13 @@ If you want to understand:
 - MQTT command handling: [commands.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/engine/commands.py)
 - Persistence: [database.py](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/simulator/persistence/database.py)
 - Manual demo/testing commands: [DOCKER_COMMANDS.md](/run/media/enkea/New%20Volume/University/Senior/Second%20Semester/SWAPD%20453%20IOT/Project/iot-project/DOCKER_COMMANDS.md)
+
+## Performance Logging Script
+
+Use `performance.sh` to run the stack and collect per-run logs under `perf_logs/run_<RUN_ID>/`.
+
+**Run it:**
+
+```bash
+[performance.sh](http://_vscodecontentref_/0)
+```
