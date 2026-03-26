@@ -22,6 +22,10 @@ COMMAND_TOPIC = "campus/{}/{}/{}/command".format(BUILDING_ID, FLOOR_ID, ROOM_ID)
 
 PUBLISH_INTERVAL_SEC = 5
 SENSOR_READ_INTERVAL_SEC = 1
+OUTSIDE_TEMP = 30.0
+THERMAL_LEAKAGE_ALPHA = 0.02
+HVAC_BETA_ON = 0.25
+HVAC_BETA_ECO = 0.12
 
 # -------- Pins --------
 dht_sensor = dht.DHT22(Pin(15))
@@ -40,6 +44,7 @@ last_humidity = 50.0
 last_light = 300
 last_occupancy = False
 last_publish = 0
+temp_initialized = False
 
 # -------- Helpers --------
 def connect_wifi():
@@ -111,18 +116,32 @@ def connect_mqtt():
     return client
 
 def read_sensors():
-    global last_temp, last_humidity, last_light, last_occupancy
+    global last_temp, last_humidity, last_light, last_occupancy, temp_initialized
 
     try:
         dht_sensor.measure()
-        temp = float(dht_sensor.temperature())
         hum = float(dht_sensor.humidity())
-        last_temp = temp
         last_humidity = hum
+        if not temp_initialized:
+            last_temp = float(dht_sensor.temperature())
+            temp_initialized = True
     except Exception as e:
         print("DHT read failed, using last value:", e)
 
     last_occupancy = bool(pir_sensor.value())
+
+    leakage = THERMAL_LEAKAGE_ALPHA * (OUTSIDE_TEMP - last_temp)
+
+    if hvac_mode == "ON":
+        hvac_effect = HVAC_BETA_ON * (target_temp - last_temp)
+    elif hvac_mode == "ECO":
+        hvac_effect = HVAC_BETA_ECO * (target_temp - last_temp)
+    else:
+        hvac_effect = 0.0
+
+    occupancy_heat = 0.05 if last_occupancy else 0.0
+    simulated_temp = last_temp + leakage + hvac_effect + occupancy_heat
+    last_temp = max(15.0, min(50.0, simulated_temp))
 
     raw = ldr_sensor.read()
     last_light = int((raw / 4095) * 1000)
