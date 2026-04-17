@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<hivemq xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <listeners>
+        <!-- Plaintext: internal diagnostics & bootstrap only. Production traffic MUST use TLS. -->
+        <tcp-listener>
+            <port>1883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>tcp-internal</name>
+        </tcp-listener>
+
+        <!-- TLS listener for devices + gateways + ThingsBoard integration. -->
+        <tls-tcp-listener>
+            <port>8883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>tls-campus</name>
+            <tls>
+                <keystore>
+                    <path>/opt/hivemq/certs/hivemq.jks</path>
+                    <password>changeit</password>
+                    <private-key-password>changeit</private-key-password>
+                </keystore>
+                <client-authentication-mode>NONE</client-authentication-mode>
+                <cipher-suites>
+                    <cipher-suite>TLS_AES_128_GCM_SHA256</cipher-suite>
+                    <cipher-suite>TLS_AES_256_GCM_SHA384</cipher-suite>
+                    <cipher-suite>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</cipher-suite>
+                    <cipher-suite>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</cipher-suite>
+                </cipher-suites>
+                <protocols>
+                    <protocol>TLSv1.3</protocol>
+                    <protocol>TLSv1.2</protocol>
+                </protocols>
+            </tls>
+        </tls-tcp-listener>
+    </listeners>
+
+    <mqtt>
+        <queued-messages>
+            <max-queue-size>10000</max-queue-size>
+            <strategy>discard</strategy>
+        </queued-messages>
+        <packets>
+            <max-packet-size>268435456</max-packet-size>
+        </packets>
+        <receive-maximum>
+            <server-receive-maximum>1024</server-receive-maximum>
+        </receive-maximum>
+        <topic-alias>
+            <enabled>true</enabled>
+            <max-per-client>5</max-per-client>
+        </topic-alias>
+        <subscription-identifier>
+            <enabled>true</enabled>
+        </subscription-identifier>
+        <wildcard-subscriptions>
+            <enabled>true</enabled>
+        </wildcard-subscriptions>
+        <shared-subscriptions>
+            <enabled>true</enabled>
+        </shared-subscriptions>
+        <retained-messages>
+            <enabled>true</enabled>
+        </retained-messages>
+    </mqtt>
+
+    <control-center>
+        <listeners>
+            <http>
+                <port>8080</port>
+                <bind-address>0.0.0.0</bind-address>
+            </http>
+        </listeners>
+        <users>
+            <user>
+                <name>admin</name>
+                <password>$2a$10$6YwDxzFhFwwQ1qY2Z1lJ1O3xXy5k5W7HkL9kL9kL9kL9kL9kL9kL9</password>
+            </user>
+        </users>
+    </control-center>
+
+    <restrictions>
+        <max-connections>-1</max-connections>
+        <max-client-id-length>65535</max-client-id-length>
+        <no-connect-idle-timeout>10000</no-connect-idle-timeout>
+    </restrictions>
+</hivemq>

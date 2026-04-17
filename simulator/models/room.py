@@ -1,3 +1,7 @@
+import hashlib
+import hmac
+import os
+
 from simulator import physics
 from simulator.faults import FaultInjector
 
@@ -10,10 +14,30 @@ class Room:
         self.floor_id = f"f{floor:02d}"
         self.room_id = f"r{self.room_number:03d}"
         self.id = f"{building_id}-{self.floor_id}-{self.room_id}"
-        self.mqtt_floor = f"floor_{floor:02d}"
-        self.mqtt_room = f"room_{self.room_number:03d}"
-        self.mqtt_building = self._format_building_slug(building_id)
+
+        # Spec-canonical MQTT tree: campus/b01/f05/r502
+        self.mqtt_building = building_id
+        self.mqtt_floor = self.floor_id
+        self.mqtt_room = self.room_id
         self.mqtt_path = f"{config['mqtt']['topic_prefix']}/{self.mqtt_building}/{self.mqtt_floor}/{self.mqtt_room}"
+
+        # Protocol assignment per floor: rooms 1-10 -> CoAP, 11-20 -> MQTT.
+        transport = config.get("transport", {})
+        coap_rooms = transport.get("coap_rooms_per_floor", 10)
+        self.protocol = "coap" if room_num <= coap_rooms else "mqtt"
+
+        # Stable 0..N-1 index used for deterministic port + credential derivation.
+        rooms_per_floor = config["building"]["rooms_per_floor"]
+        self.global_index = (floor - 1) * rooms_per_floor + (room_num - 1)
+
+        # CoAP port (only meaningful when protocol == "coap")
+        coap_cfg = config.get("coap", {})
+        self.coap_base_port = coap_cfg.get("base_port", 5683)
+        self.coap_port = self.coap_base_port + self.global_index
+
+        # MQTT auth identity (derived; master secret only read when requested)
+        self.mqtt_username = f"room-{floor:02d}-{room_num:02d}"
+        self.psk_identity = self.mqtt_username
 
         thermal = config["thermal"]
         if state:
@@ -52,28 +76,30 @@ class Room:
     def fault_data(self, value: dict) -> None:
         self.fault_injector.fault_data = value
 
+    def topic(self, suffix: str) -> str:
+        return f"{self.mqtt_path}/{suffix}"
+
+    def mqtt_password(self, master_secret: str | None = None) -> str:
+        secret = master_secret if master_secret is not None else os.environ.get("MQTT_PASSWORD_SECRET", "dev-secret")
+        return hmac.new(secret.encode(), self.mqtt_username.encode(), hashlib.sha256).hexdigest()
+
+    def psk_key(self, master_secret: str | None = None) -> bytes:
+        secret = master_secret if master_secret is not None else os.environ.get("COAP_PSK_MASTER", "dev-psk")
+        return hmac.new(secret.encode(), self.psk_identity.encode(), hashlib.sha256).digest()
+
     def tick(self, config: dict, timestamp: int) -> None:
         thermal = config["thermal"]
         alpha = thermal["alpha"]
         beta = thermal["beta"]
         outside_temp = physics.outside_temperature(thermal["outside_temp"], timestamp)
 
-        # 1. Thermal leakage (Newton's Law of Cooling)
         leakage = physics.thermal_leakage(alpha, outside_temp, self.temperature)
-
-        # 2. Occupancy update
         self.occupancy = physics.compute_occupancy(timestamp, self._occupancy_offset)
-
-        # 3. HVAC actuator impact
         hvac = physics.hvac_effect(beta, self.hvac_mode, self.target_temp, self.temperature)
-
-        # 4. Occupancy heat contribution
         occ_heat = physics.occupancy_heat_gain(self.occupancy, thermal["occupancy_heat"])
 
-        # 5. Update temperature
         self.temperature += leakage + hvac + occ_heat
 
-        # 6. Environmental correlations
         light_level, dimmer_hint = physics.compute_light(
             self.occupancy, timestamp, thermal["light_threshold"], self._light_offset,
         )
@@ -87,7 +113,6 @@ class Room:
             self.humidity, outside_temp, self.temperature, self.occupancy,
         )
 
-        # 7. Clamp to spec ranges
         self.temperature = max(15.0, min(50.0, self.temperature))
         self.humidity = max(0.0, min(100.0, self.humidity))
         self.light_level = max(0, min(1000, self.light_level))
@@ -105,6 +130,7 @@ class Room:
             "building": self.building_id,
             "floor": self.floor_number,
             "room": self.room_number,
+            "protocol": self.protocol,
             "timestamp": timestamp,
             "fault": self.active_fault or "none",
             "temperature": round(self.temperature, 2),
@@ -120,6 +146,7 @@ class Room:
         return {
             "room_id": self.id,
             "status": "alive",
+            "protocol": self.protocol,
             "timestamp": timestamp,
         }
 
@@ -143,7 +170,20 @@ class Room:
         }
         return cls(building_id, floor, room_num, config, state=state)
 
-    def apply_command(self, command: dict) -> None:
+    def apply_command(self, command: dict) -> bool:
+        """Apply a command. Returns True if state changed, False if no-op (idempotent replay)."""
+        before = (self.hvac_mode, round(self.target_temp, 3), self.lighting_dimmer)
+
+        # Accept both direct keys and spec-style {"action": "set_hvac", "value": "ON"} shape.
+        action = command.get("action")
+        value = command.get("value")
+        if action == "set_hvac" and value is not None:
+            self.hvac_mode = value
+        elif action == "set_target_temp" and value is not None:
+            self.target_temp = float(value)
+        elif action == "set_dimmer" and value is not None:
+            self.lighting_dimmer = int(value)
+
         if "hvac_mode" in command:
             self.hvac_mode = command["hvac_mode"]
         if "target_temp" in command:
@@ -154,6 +194,5 @@ class Room:
         self.target_temp = max(15.0, min(50.0, self.target_temp))
         self.lighting_dimmer = max(0, min(100, self.lighting_dimmer))
 
-    def _format_building_slug(self, building_id: str) -> str:
-        digits = "".join(ch for ch in building_id if ch.isdigit()) or "01"
-        return f"bldg_{int(digits):02d}"
+        after = (self.hvac_mode, round(self.target_temp, 3), self.lighting_dimmer)
+        return before != after

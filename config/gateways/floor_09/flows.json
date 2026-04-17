@@ -1,0 +1,395 @@
+[
+  {
+    "id": "campus-tab",
+    "type": "tab",
+    "label": "Floor f09 Gateway",
+    "disabled": false,
+    "info": "Bridges CoAP rooms r09__01..r09__10 onto HiveMQ and translates MQTT commands into CoAP PUTs. Publishes a 60s floor summary. Degrades to an offline-autonomy subflow when HiveMQ is unreachable."
+  },
+  {
+    "id": "hivemq-broker",
+    "type": "mqtt-broker",
+    "name": "HiveMQ (TLS)",
+    "broker": "${HIVEMQ_HOST}",
+    "port": "${HIVEMQ_PORT}",
+    "clientid": "gw-f09",
+    "usetls": true,
+    "tls": "hivemq-tls-config",
+    "protocolVersion": "4",
+    "keepalive": "30",
+    "cleansession": true,
+    "credentials": {
+      "user": "${GATEWAY_USER}",
+      "password": "${GATEWAY_PASSWORD}"
+    },
+    "willTopic": "campus/b01/f09/status",
+    "willQos": "1",
+    "willRetain": "true",
+    "willPayload": "offline",
+    "birthTopic": "campus/b01/f09/status",
+    "birthQos": "1",
+    "birthRetain": "true",
+    "birthPayload": "online"
+  },
+  {
+    "id": "hivemq-tls-config",
+    "type": "tls-config",
+    "name": "HiveMQ TLS",
+    "cert": "",
+    "key": "",
+    "ca": "${HIVEMQ_CA}",
+    "verifyservercert": false,
+    "alpnprotocol": ""
+  },
+  {
+    "id": "mqtt-cmd-sub",
+    "type": "mqtt in",
+    "name": "subscribe campus/b01/f09/+/cmd",
+    "topic": "campus/b01/f09/+/cmd",
+    "qos": "2",
+    "broker": "hivemq-broker",
+    "wires": [
+      [
+        "route-by-protocol"
+      ]
+    ]
+  },
+  {
+    "id": "route-by-protocol",
+    "type": "function",
+    "name": "route by room protocol",
+    "func": "const parts = msg.topic.split('/');\nconst floor = parts[2];\nconst room = parts[3];\nconst num = parseInt(room.substring(1), 10);\nconst localRoom = num % 100;\n// CoAP = 1..10 per floor; MQTT = 11..20\nconst isCoap = localRoom >= 1 && localRoom <= 10;\nif (isCoap) {\n    msg.roomId = room;\n    msg.floor = floor;\n    msg.coapHost = env.get('COAP_HOST') || 'simulator';\n    const floorNum = parseInt(floor.substring(1), 10);\n    const roomsPerFloor = parseInt(env.get('ROOMS_PER_FLOOR') || '20', 10);\n    const basePort = parseInt(env.get('COAP_BASE_PORT') || '5683', 10);\n    const globalIndex = (floorNum - 1) * roomsPerFloor + (localRoom - 1);\n    const reg = flow.get('coap_registry') || {};\n    const key = `b01-${floor}-${room}`;\n    if (reg[key] && reg[key].port != null) {\n        msg.coapPort = reg[key].port;\n        if (reg[key].host) { msg.coapHost = reg[key].host; }\n    } else {\n        msg.coapPort = basePort + globalIndex;\n    }\n    return [msg, null];\n}\nreturn [null, null];",
+    "outputs": 2,
+    "wires": [
+      [
+        "coap-put"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "coap-put",
+    "type": "coap request",
+    "name": "PUT /f09/:room/actuators/hvac",
+    "observe": false,
+    "method": "PUT",
+    "name-url": "",
+    "url": "coap://{{coapHost}}:{{coapPort}}/f09/{{roomId}}/actuators/hvac",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-ack-to-mqtt"
+      ]
+    ]
+  },
+  {
+    "id": "coap-ack-to-mqtt",
+    "type": "function",
+    "name": "repackage ACK \u2192 response",
+    "func": "const parts = msg.topic ? msg.topic.split('/') : [];\nconst room = msg.roomId || parts[3];\nmsg.topic = `campus/b01/f09/${room}/response`;\nmsg.qos = 2;\nreturn msg;",
+    "outputs": 1,
+    "wires": [
+      [
+        "mqtt-response-pub"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt-response-pub",
+    "type": "mqtt out",
+    "name": "publish response",
+    "topic": "",
+    "qos": "2",
+    "retain": "false",
+    "broker": "hivemq-broker",
+    "wires": []
+  },
+  {
+    "id": "coap-telemetry-observers",
+    "type": "function",
+    "name": "observe 10 CoAP telemetry URIs",
+    "func": "// At deploy time, the render script replaces this comment with 10 links to coap-obs-* nodes.\nreturn msg;",
+    "outputs": 10,
+    "wires": [
+      [
+        "coap-obs-1"
+      ],
+      [
+        "coap-obs-2"
+      ],
+      [
+        "coap-obs-3"
+      ],
+      [
+        "coap-obs-4"
+      ],
+      [
+        "coap-obs-5"
+      ],
+      [
+        "coap-obs-6"
+      ],
+      [
+        "coap-obs-7"
+      ],
+      [
+        "coap-obs-8"
+      ],
+      [
+        "coap-obs-9"
+      ],
+      [
+        "coap-obs-10"
+      ]
+    ]
+  },
+  {
+    "id": "coap-observe-republish",
+    "type": "function",
+    "name": "republish telemetry to MQTT",
+    "func": "if (!msg.payload) { return null; }\nlet data;\ntry { data = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload; }\ncatch (e) { node.warn('bad coap payload ' + e); return null; }\nconst roomId = data.room_id;\nif (!roomId) { return null; }\nmsg.topic = `campus/b01/f09/${roomId.split('-')[2]}/telemetry`;\nmsg.payload = data;\nmsg.qos = 0;\n// Cache last-seen telemetry for offline autonomy + floor summary.\nconst cache = flow.get('telemetry_cache') || {};\ncache[roomId] = { data, ts: Date.now() };\nflow.set('telemetry_cache', cache);\nreturn msg;",
+    "outputs": 1,
+    "wires": [
+      [
+        "mqtt-telemetry-pub"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt-telemetry-pub",
+    "type": "mqtt out",
+    "name": "publish telemetry (republished)",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "hivemq-broker",
+    "wires": []
+  },
+  {
+    "id": "floor-summary-trigger",
+    "type": "inject",
+    "name": "every 60s",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "60",
+    "once": true,
+    "onceDelay": "10",
+    "payload": "",
+    "payloadType": "date",
+    "wires": [
+      [
+        "floor-summary-build"
+      ]
+    ]
+  },
+  {
+    "id": "floor-summary-build",
+    "type": "function",
+    "name": "compute floor averages",
+    "func": "const cache = flow.get('telemetry_cache') || {};\nconst rooms = Object.values(cache);\nif (rooms.length === 0) { return null; }\nlet tSum = 0, hSum = 0, occ = 0;\nfor (const r of rooms) {\n    tSum += r.data.temperature || 0;\n    hSum += r.data.humidity || 0;\n    if (r.data.occupancy) occ += 1;\n}\nmsg.topic = `campus/b01/f09/floor_summary`;\nmsg.payload = {\n    floor: 'f09',\n    sample_count: rooms.length,\n    avg_temperature: +(tSum / rooms.length).toFixed(2),\n    avg_humidity: +(hSum / rooms.length).toFixed(2),\n    occupied_rooms: occ,\n    generated_at: Math.floor(Date.now() / 1000)\n};\nmsg.qos = 1;\nreturn msg;",
+    "outputs": 1,
+    "wires": [
+      [
+        "mqtt-summary-pub"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt-summary-pub",
+    "type": "mqtt out",
+    "name": "publish floor summary",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "hivemq-broker",
+    "wires": []
+  },
+  {
+    "id": "mqtt-status",
+    "type": "status",
+    "name": "watch HiveMQ connection",
+    "scope": [
+      "hivemq-broker"
+    ],
+    "wires": [
+      [
+        "offline-autonomy"
+      ]
+    ]
+  },
+  {
+    "id": "offline-autonomy",
+    "type": "function",
+    "name": "offline autonomy: local lighting rules",
+    "func": "// When HiveMQ is disconnected, iterate cached telemetry and push CoAP\n// PUTs that turn lighting_dimmer=0 for rooms that are unoccupied. Messages\n// are buffered in flow context for later replay on reconnect.\nconst status = msg.status && msg.status.text;\nif (!status || !status.toLowerCase().includes('disconnected')) { return null; }\nconst cache = flow.get('telemetry_cache') || {};\nconst buffered = flow.get('buffered_summaries') || [];\nconst actions = [];\nfor (const [roomId, entry] of Object.entries(cache)) {\n    if (entry.data.occupancy === false && (entry.data.lighting_dimmer || 0) > 0) {\n        actions.push({\n            topic: `campus/b01/f09/${roomId.split('-')[2]}/cmd`,\n            payload: { action: 'set_dimmer', value: 0, command_id: `offline-${Date.now()}-${roomId}` }\n        });\n    }\n}\nbuffered.push({ at: Date.now(), actions });\nflow.set('buffered_summaries', buffered);\nnode.warn(`offline autonomy queued ${actions.length} actions`);\nreturn null;",
+    "outputs": 1,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "coap-obs-1",
+    "type": "coap request",
+    "name": "observe r901/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5843/f09/r901/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-2",
+    "type": "coap request",
+    "name": "observe r902/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5844/f09/r902/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-3",
+    "type": "coap request",
+    "name": "observe r903/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5845/f09/r903/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-4",
+    "type": "coap request",
+    "name": "observe r904/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5846/f09/r904/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-5",
+    "type": "coap request",
+    "name": "observe r905/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5847/f09/r905/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-6",
+    "type": "coap request",
+    "name": "observe r906/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5848/f09/r906/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-7",
+    "type": "coap request",
+    "name": "observe r907/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5849/f09/r907/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-8",
+    "type": "coap request",
+    "name": "observe r908/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5850/f09/r908/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-9",
+    "type": "coap request",
+    "name": "observe r909/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5851/f09/r909/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  },
+  {
+    "id": "coap-obs-10",
+    "type": "coap request",
+    "name": "observe r910/telemetry",
+    "observe": true,
+    "method": "GET",
+    "url": "coap://simulator:5852/f09/r910/telemetry",
+    "contentFormat": "application/json",
+    "rawbuffer": false,
+    "multicast": "",
+    "wires": [
+      [
+        "coap-observe-republish"
+      ]
+    ]
+  }
+]

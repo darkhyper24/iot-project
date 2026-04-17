@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marker so HiveMQ loads the file-RBAC extension at startup. -->
+<hivemq-extension>
+    <id>hivemq-file-rbac-extension</id>
+    <name>HiveMQ File RBAC Extension</name>
+    <version>1.3.0</version>
+    <priority>1000</priority>
+    <start-priority>1000</start-priority>
+    <author>HiveMQ</author>
+</hivemq-extension>

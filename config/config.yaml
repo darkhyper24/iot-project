@@ -25,9 +25,35 @@ thermal:
   light_threshold: 300
 
 mqtt:
-  broker_host: mqtt-broker
-  broker_port: 1883
+  broker_host: hivemq
+  broker_port: 8883
   topic_prefix: "campus"
+  plaintext_port: 1883
+  cmd_qos: 2
+  response_qos: 2
+  heartbeat_qos: 1
+  status_qos: 1
+
+transport:
+  coap_rooms_per_floor: 10   # rooms 1..10 per floor -> CoAP
+  mqtt_rooms_per_floor: 10   # rooms 11..20 per floor -> MQTT
+
+coap:
+  bind_host: "0.0.0.0"
+  advertise_host: "simulator"
+  base_port: 5683
+  dtls_enabled: false          # toggle via env COAP_DTLS_ENABLED=true
+  dtls_fallback_plaintext: true
+  observable_max_age: 30
+
+security:
+  mqtt_tls: true
+  mqtt_ca_path: "/certs/ca.crt"
+  mqtt_client_cert_path: ""
+  mqtt_insecure_skip_verify: true   # self-signed local CA, gmqtt verifies hostname
+  mqtt_password_secret_env: MQTT_PASSWORD_SECRET
+  coap_psk_master_env: COAP_PSK_MASTER
+  mqtt_user_prefix: "room-"
 
 faults:
   enabled: true
@@ -41,3 +67,8 @@ faults:
 heartbeat:
   interval: 10
   timeout: 60
+
+admin:
+  client_id: "world-engine-admin"
+  fleet_topic: "campus/b01/fleet/health"
+  floor_summary_qos: 1

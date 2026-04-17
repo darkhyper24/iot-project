@@ -1,0 +1,70 @@
+[
+  {
+    "name": "MQTT-ThermalSensor",
+    "type": "DEFAULT",
+    "transportType": "DEFAULT",
+    "description": "200-room project: MQTT transport (100 devices). Telemetry arrives via the HiveMQ integration, not via TB's native MQTT gateway.",
+    "profileData": {
+      "configuration": {"type": "DEFAULT"},
+      "transportConfiguration": {"type": "DEFAULT"},
+      "alarms": [
+        {
+          "id": "HighTempAlarm",
+          "alarmType": "HighTempAlarm",
+          "createRules": {
+            "CRITICAL": {
+              "condition": {
+                "condition": [
+                  {
+                    "key": {"type": "TIME_SERIES", "key": "temperature"},
+                    "valueType": "NUMERIC",
+                    "predicate": {
+                      "type": "NUMERIC",
+                      "operation": "GREATER",
+                      "value": {"defaultValue": 30.0}
+                    }
+                  }
+                ],
+                "spec": {"type": "DURATION", "unit": "SECONDS", "value": 30}
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "CoAP-ThermalSensor",
+    "type": "DEFAULT",
+    "transportType": "DEFAULT",
+    "description": "200-room project: CoAP transport (100 devices) bridged through Node-RED floor gateways into HiveMQ, then ingested by TB integration.",
+    "profileData": {
+      "configuration": {"type": "DEFAULT"},
+      "transportConfiguration": {"type": "DEFAULT"},
+      "alarms": [
+        {
+          "id": "HighTempAlarm",
+          "alarmType": "HighTempAlarm",
+          "createRules": {
+            "CRITICAL": {
+              "condition": {
+                "condition": [
+                  {
+                    "key": {"type": "TIME_SERIES", "key": "temperature"},
+                    "valueType": "NUMERIC",
+                    "predicate": {
+                      "type": "NUMERIC",
+                      "operation": "GREATER",
+                      "value": {"defaultValue": 30.0}
+                    }
+                  }
+                ],
+                "spec": {"type": "DURATION", "unit": "SECONDS", "value": 30}
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+]

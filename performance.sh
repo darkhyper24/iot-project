@@ -15,6 +15,17 @@ LATENCY_PID=$!
 
 # Stats loop for 30 minutes
 END=$((SECONDS + 1800))
+
+# HiveMQ container resource snapshots every 30s (Control Center REST varies by edition; stats are always available)
+(
+  while [ $SECONDS -lt $END ]; do
+    date +"%Y-%m-%d %H:%M:%S" >> "$LOG_DIR/hivemq_stats.log"
+    docker stats --no-stream "$(docker compose ps -q hivemq)" >> "$LOG_DIR/hivemq_stats.log" 2>&1 || true
+    sleep 30
+  done
+) &
+HIVE_PID=$!
+
 while [ $SECONDS -lt $END ]; do
     date +"%Y-%m-%d %H:%M:%S" >>  "$LOG_DIR/stats.log"
     docker stats --no-stream "$(docker compose ps -q simulator)" >> "$LOG_DIR/stats.log" 2>&1
@@ -22,5 +33,5 @@ while [ $SECONDS -lt $END ]; do
 done
 
 # Kill background log collectors after 30 minutes
-kill $LOGS_PID $LATENCY_PID 2>/dev/null
+kill $LOGS_PID $LATENCY_PID $HIVE_PID 2>/dev/null
 echo "Done. Logs saved to $LOG_DIR"

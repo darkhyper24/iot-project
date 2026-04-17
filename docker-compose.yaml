@@ -7,6 +7,7 @@ services:
       POSTGRES_DB: iot_campus
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./config/postgres/init:/docker-entrypoint-initdb.d:ro
     ports:
       - "5433:5432"
     healthcheck:
@@ -17,12 +18,68 @@ services:
     networks:
       - iot-net
 
-  mqtt-broker:
-    image: eclipse-mosquitto:2
-    volumes:
-      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+  hivemq:
+    image: hivemq/hivemq-ce:latest
     ports:
+      - "1883:1883"   # plaintext listener (internal use / diagnostics)
+      - "8883:8883"   # TLS listener (device + gateway traffic)
+      - "8080:8080"   # Control Center
+    volumes:
+      - ./config/hivemq/conf:/opt/hivemq/conf
+      - ./config/hivemq/extensions:/opt/hivemq/extensions
+      - ./config/certs:/opt/hivemq/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - iot-net
+
+  tb-bridge:
+    build: .
+    command: ["python", "/app/scripts/tb_hivemq_bridge.py"]
+    depends_on:
+      thingsboard:
+        condition: service_started
+      hivemq:
+        condition: service_started
+    environment:
+      TB_URL: http://thingsboard:9090
+      TB_USER: tenant@thingsboard.org
+      TB_PASS: tenant
+      MQTT_BROKER_HOST: hivemq
+      MQTT_BROKER_PORT: "8883"
+      TB_INTEGRATION_USER: tb-integration
+      TB_INTEGRATION_PASSWORD: ${TB_INTEGRATION_MQTT_PASSWORD:-tb-integration-secret}
+      SECURITY_MQTT_TLS: "true"
+      SECURITY_MQTT_CA_PATH: /certs/ca.crt
+      SECURITY_MQTT_INSECURE_SKIP_VERIFY: "true"
+    volumes:
+      - ./config/certs:/certs:ro
+    networks:
+      - iot-net
+
+  thingsboard:
+    image: thingsboard/tb-postgres:3.7.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      TB_QUEUE_TYPE: in-memory
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thingsboard
+      SPRING_DATASOURCE_USERNAME: iot_user
+      SPRING_DATASOURCE_PASSWORD: iot_password
+      INSTALL_TB: "true"
+      LOAD_DEMO: "false"
+    ports:
+      - "9090:9090"
       - "1884:1883"
+      - "7070:7070"
+      - "5684:5683/udp"
+    volumes:
+      - tbdata:/data
+      - tblogs:/var/log/thingsboard
     networks:
       - iot-net
 
@@ -31,7 +88,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mqtt-broker:
+      hivemq:
         condition: service_started
     environment:
       DB_HOST: postgres
@@ -39,14 +96,260 @@ services:
       DB_USER: iot_user
       DB_PASSWORD: iot_password
       DB_NAME: iot_campus
-      MQTT_BROKER_HOST: mqtt-broker
+      MQTT_BROKER_HOST: hivemq
+      MQTT_BROKER_PORT: "8883"
+      SECURITY_MQTT_TLS: "true"
+      SECURITY_MQTT_CA_PATH: /certs/ca.crt
+      SECURITY_MQTT_INSECURE_SKIP_VERIFY: "true"
+      MQTT_PASSWORD_SECRET: ${MQTT_PASSWORD_SECRET:-dev-master-secret}
+      COAP_PSK_MASTER: ${COAP_PSK_MASTER:-dev-psk-master}
+      ADMIN_MQTT_USER: ${ADMIN_MQTT_USER:-admin}
+      ADMIN_MQTT_PASSWORD: ${ADMIN_MQTT_PASSWORD:-admin-secret}
+      COAP_BIND_HOST: "0.0.0.0"
+      COAP_ADVERTISE_HOST: simulator
+      COAP_REGISTRY_PATH: /app/config/coap_registry.json
     volumes:
       - ./config:/app/config
+      - ./config/certs:/certs:ro
+    ports:
+      - "5683-5782:5683-5782/udp"
+    networks:
+      - iot-net
+
+  gateway-f01:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f01
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f01
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F01:-gw-f01-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_01:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f02:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f02
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f02
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F02:-gw-f02-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_02:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f03:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f03
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f03
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F03:-gw-f03-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_03:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f04:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f04
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f04
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F04:-gw-f04-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_04:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f05:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f05
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f05
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F05:-gw-f05-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_05:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f06:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f06
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f06
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F06:-gw-f06-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_06:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f07:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f07
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f07
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F07:-gw-f07-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_07:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f08:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f08
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f08
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F08:-gw-f08-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_08:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f09:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f09
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f09
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F09:-gw-f09-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_09:/data
+      - ./config/certs:/data/certs:ro
+    networks:
+      - iot-net
+
+  gateway-f10:
+    build:
+      context: ./config/gateways
+      dockerfile: Dockerfile
+    depends_on:
+      hivemq:
+        condition: service_started
+    environment:
+      FLOOR_ID: f10
+      HIVEMQ_HOST: hivemq
+      HIVEMQ_PORT: "8883"
+      HIVEMQ_CA: /data/certs/ca.crt
+      GATEWAY_USER: gw-f10
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD_F10:-gw-f10-secret}
+      COAP_HOST: simulator
+      COAP_BASE_PORT: "5683"
+      ROOMS_PER_FLOOR: "20"
+    volumes:
+      - ./config/gateways/floor_10:/data
+      - ./config/certs:/data/certs:ro
     networks:
       - iot-net
 
 volumes:
   pgdata:
+  tbdata:
+  tblogs:
 
 networks:
   iot-net:
