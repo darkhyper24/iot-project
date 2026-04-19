@@ -12,6 +12,9 @@ cd "/run/media/enkea/New Volume/University/Senior/Second Semester/SWAPD 453 IOT/
 
 - Use `docker compose`, not `docker-compose`.
 
+- Install **mosquitto** clients on the host (`brew install mosquitto` on macOS) for subscribe/publish commands below.
+
+
 ## Terminal Layout
 
 Use 5 terminals:
@@ -45,7 +48,7 @@ Expected startup indicators in Terminal 1:
 In Terminal 2:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry'
 ```
 
 What to check:
@@ -70,7 +73,7 @@ What to check:
 In Terminal 3:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/heartbeat'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/heartbeat'
 ```
 
 What to check:
@@ -86,7 +89,7 @@ What to check:
 In Terminal 4:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/fleet_monitoring/heartbeat'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/fleet_monitoring/heartbeat'
 ```
 
 What to check:
@@ -124,7 +127,7 @@ What to check:
 In Terminal 5:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":80}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":80}'
 ```
 
 Then check Terminal 2.
@@ -150,7 +153,7 @@ Expected:
 In Terminal 5:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_02/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_02/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'
 ```
 
 Then check:
@@ -168,7 +171,7 @@ Expected:
 In Terminal 5:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'
 ```
 
 Then check:
@@ -186,7 +189,7 @@ Expected:
 First, set a room to a known non-default command state:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26}'
 ```
 
 Check the database before restart:
@@ -210,7 +213,7 @@ docker compose exec -T postgres psql -U iot_user -d iot_campus -c "SELECT room_i
 Then read one telemetry message:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 5 mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/telemetry' -C 1"
+timeout 5 mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry' -C 1
 ```
 
 What to check:
@@ -254,7 +257,7 @@ What to check:
 If you want to look for occupied rooms across the fleet:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 10 mosquitto_sub -t 'campus/+/+/+/telemetry'" | grep '\"occupancy\": true'
+timeout 10 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep '\"occupancy\": true'
 ```
 
 ## 11. Verify Fault Modeling
@@ -282,7 +285,7 @@ docker compose up --build -d simulator
 Now watch fault-bearing telemetry:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 15 mosquitto_sub -t 'campus/+/+/+/telemetry'" | grep -v '"fault": "none"'
+timeout 15 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep -v '"fault": "none"'
 ```
 
 What to look for:

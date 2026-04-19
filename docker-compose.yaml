@@ -1,3 +1,20 @@
+# Phase 2 stack: HiveMQ (MQTT backbone), ThingsBoard CE, 10 Node-RED floor gateways,
+# simulator Postgres, and the campus simulator.
+#
+# ThingsBoard first-time DB init (run once after `docker compose up -d postgres-tb` is healthy):
+#   docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=false thingsboard
+
+x-gateway_template: &gateway_template
+  image: nodered/node-red:4.0
+  restart: unless-stopped
+  depends_on:
+    hivemq:
+      condition: service_started
+    simulator:
+      condition: service_started
+  networks:
+    - iot-net
+
 services:
   postgres:
     image: postgres:15
@@ -17,12 +34,50 @@ services:
     networks:
       - iot-net
 
-  mqtt-broker:
-    image: eclipse-mosquitto:2
+  postgres-tb:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: thingsboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
-      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - tb-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d thingsboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - iot-net
+
+  hivemq:
+    image: hivemq/hivemq-ce:latest
+    hostname: hivemq
     ports:
-      - "1884:1883"
+      - "1883:1883"
+    volumes:
+      - hivemq-data:/opt/hivemq/data
+    environment:
+      HIVEMQ_LOG_LEVEL: INFO
+    networks:
+      - iot-net
+
+  thingsboard:
+    image: thingsboard/tb-node:4.3.1.1
+    hostname: thingsboard
+    ports:
+      - "9090:8080"
+      - "7070:7070"
+    environment:
+      TB_SERVICE_ID: tb-ce-node
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-tb:5432/thingsboard
+      JAVA_OPTS: -Xms512m -Xmx2048m
+    depends_on:
+      postgres-tb:
+        condition: service_healthy
+    volumes:
+      - tb-logs:/var/log/thingsboard
     networks:
       - iot-net
 
@@ -31,7 +86,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mqtt-broker:
+      hivemq:
         condition: service_started
     environment:
       DB_HOST: postgres
@@ -39,14 +94,114 @@ services:
       DB_USER: iot_user
       DB_PASSWORD: iot_password
       DB_NAME: iot_campus
-      MQTT_BROKER_HOST: mqtt-broker
+      MQTT_BROKER_HOST: hivemq
+      MQTT_BROKER_PORT: "1883"
     volumes:
       - ./config:/app/config
+    ports:
+      - "5693:5683/udp"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       - iot-net
 
+  gateway-floor-01:
+    <<: *gateway_template
+    ports:
+      - "1880:1880"
+    environment:
+      FLOOR: "1"
+    volumes:
+      - ./gateways/floor-01:/data
+
+  gateway-floor-02:
+    <<: *gateway_template
+    ports:
+      - "1881:1880"
+    environment:
+      FLOOR: "2"
+    volumes:
+      - ./gateways/floor-02:/data
+
+  gateway-floor-03:
+    <<: *gateway_template
+    ports:
+      - "1882:1880"
+    environment:
+      FLOOR: "3"
+    volumes:
+      - ./gateways/floor-03:/data
+
+  gateway-floor-04:
+    <<: *gateway_template
+    ports:
+      - "1890:1880"
+    environment:
+      FLOOR: "4"
+    volumes:
+      - ./gateways/floor-04:/data
+
+  gateway-floor-05:
+    <<: *gateway_template
+    ports:
+      - "1891:1880"
+    environment:
+      FLOOR: "5"
+    volumes:
+      - ./gateways/floor-05:/data
+
+  gateway-floor-06:
+    <<: *gateway_template
+    ports:
+      - "1892:1880"
+    environment:
+      FLOOR: "6"
+    volumes:
+      - ./gateways/floor-06:/data
+
+  gateway-floor-07:
+    <<: *gateway_template
+    ports:
+      - "1893:1880"
+    environment:
+      FLOOR: "7"
+    volumes:
+      - ./gateways/floor-07:/data
+
+  gateway-floor-08:
+    <<: *gateway_template
+    ports:
+      - "1894:1880"
+    environment:
+      FLOOR: "8"
+    volumes:
+      - ./gateways/floor-08:/data
+
+  gateway-floor-09:
+    <<: *gateway_template
+    ports:
+      - "1895:1880"
+    environment:
+      FLOOR: "9"
+    volumes:
+      - ./gateways/floor-09:/data
+
+  gateway-floor-10:
+    <<: *gateway_template
+    ports:
+      - "1896:1880"
+    environment:
+      FLOOR: "10"
+    volumes:
+      - ./gateways/floor-10:/data
+
 volumes:
   pgdata:
+  tb-pgdata:
+  tb-logs:
+  hivemq-data:
 
 networks:
   iot-net:

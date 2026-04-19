@@ -10,7 +10,9 @@ cd "/run/media/enkea/New Volume/University/Senior/Second Semester/SWAPD 453 IOT/
 
 ## Start / Stop
 
-Start everything:
+### Stack (HiveMQ, ThingsBoard, gateways)
+
+Start everything (build simulator image):
 
 ```bash
 docker compose up --build
@@ -22,7 +24,33 @@ Start in background:
 docker compose up --build -d
 ```
 
-Stop everything:
+**ThingsBoard first-time database init** (run once after `postgres-tb` is healthy; required before the UI will work):
+
+```bash
+docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=false thingsboard
+```
+
+Then start or restart ThingsBoard if needed:
+
+```bash
+docker compose up -d thingsboard
+```
+
+**Useful host ports**
+
+| Service | Host port | Notes |
+|--------|-----------|--------|
+| HiveMQ MQTT | 1883 | Campus MQTT backbone |
+| ThingsBoard UI | 9090 | http://localhost:9090 |
+| ThingsBoard Edge RPC | 7070 | |
+| Simulator Postgres | 5433 | |
+| Simulator CoAP (UDP) | 5693 | Maps to container 5683 |
+| Node-RED floor 1–3 | 1880–1882 | |
+| Node-RED floor 4–10 | 1890–1896 | |
+
+### Stop
+
+Stop everything (default compose file):
 
 ```bash
 docker compose down
@@ -130,18 +158,21 @@ Examples:
 
 ## MQTT Subscribe Commands
 
+These examples call **mosquitto_sub** / **mosquitto_pub** on your machine against HiveMQ at **localhost:1883** (published by Compose). Install clients first, e.g. on macOS: `brew install mosquitto`.
+
+
 ### Single Room Telemetry
 
 Template:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry'
 ```
 
 Example for room 520:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_05/room_520/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_05/room_520/telemetry'
 ```
 
 ### Single Room Heartbeat
@@ -149,13 +180,13 @@ docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floo
 Template:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/heartbeat'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/heartbeat'
 ```
 
 ### Fleet Monitoring Heartbeat
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/fleet_monitoring/heartbeat'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/fleet_monitoring/heartbeat'
 ```
 
 ### Whole Floor Telemetry
@@ -163,37 +194,37 @@ docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/flee
 Template:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_01/+/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/+/telemetry'
 ```
 
 Example for floor 5:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_05/+/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_05/+/telemetry'
 ```
 
 ### Whole Building Telemetry
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/+/+/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/+/+/telemetry'
 ```
 
 ### All Fleet Telemetry
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/+/+/+/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry'
 ```
 
 ### Only Occupied Rooms
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 10 mosquitto_sub -t 'campus/+/+/+/telemetry'" | grep '\"occupancy\": true'
+timeout 10 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep '\"occupancy\": true'
 ```
 
 ### Only Faulty Telemetry
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 15 mosquitto_sub -t 'campus/+/+/+/telemetry'" | grep -v '"fault": "none"'
+timeout 15 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep -v '"fault": "none"'
 ```
 
 ## MQTT Publish Commands
@@ -203,13 +234,13 @@ docker compose exec -T mqtt-broker sh -lc "timeout 15 mosquitto_sub -t 'campus/+
 Template:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":80}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":80}'
 ```
 
 Example for room 218:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_02/room_218/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24,\"lighting_dimmer\":60}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_02/room_218/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24,\"lighting_dimmer\":60}'
 ```
 
 ### Whole Floor Command
@@ -217,13 +248,13 @@ docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floo
 Template:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_02/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_02/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'
 ```
 
 Example for floor 5:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_05/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_05/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'
 ```
 
 ### Whole Building Command
@@ -231,13 +262,13 @@ docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floo
 Template:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'
 ```
 
 Example:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":75}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":75}'
 ```
 
 ## Database Commands
@@ -309,7 +340,7 @@ docker compose exec -T postgres psql -U iot_user -d iot_campus -c "SELECT room_i
 Read one telemetry message after restart:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 5 mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/telemetry' -C 1"
+timeout 5 mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry' -C 1
 ```
 
 ## Fault Testing Commands
@@ -317,7 +348,7 @@ docker compose exec -T mqtt-broker sh -lc "timeout 5 mosquitto_sub -t 'campus/bl
 ### Show Only Faulty Messages
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "timeout 15 mosquitto_sub -t 'campus/+/+/+/telemetry'" | grep -v '"fault": "none"'
+timeout 15 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep -v '"fault": "none"'
 ```
 
 ### Watch Node Dropout Warnings
@@ -363,35 +394,35 @@ docker compose up --build -d simulator
 Watch one room:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_01/room_101/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry'
 ```
 
 Watch one floor:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/floor_03/+/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_03/+/telemetry'
 ```
 
 Watch whole building:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_sub -t 'campus/bldg_01/+/+/telemetry'"
+mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/+/+/telemetry'
 ```
 
 Command one room:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26}'
 ```
 
 Command one floor:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/floor_03/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_03/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'
 ```
 
 Command whole fleet:
 
 ```bash
-docker compose exec -T mqtt-broker sh -lc "mosquitto_pub -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'"
+mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'
 ```

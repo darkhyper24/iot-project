@@ -23,10 +23,13 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
   Builds the simulator container image.
 
 - [docker-compose.yaml](./docker-compose.yaml)
-  Defines the full local stack:
-  - `simulator`
-  - `postgres`
-  - `mqtt-broker`
+  Local stack:
+  - `postgres` — simulator database (host port **5433**)
+  - `postgres-tb` — ThingsBoard database (internal only)
+  - `hivemq` — HiveMQ Community Edition MQTT (**1883**)
+  - `thingsboard` — ThingsBoard CE UI (**9090** → container 8080)
+  - `simulator` — campus engine (MQTT to HiveMQ; CoAP UDP **5693** → 5683)
+  - `gateway-floor-01` … `gateway-floor-10` — Node-RED (host **1880–1882**, **1890–1896**)
 
 - [requirements.txt](./requirements.txt)
   Python dependencies used by the simulator.
@@ -53,9 +56,6 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
   - MQTT settings
   - fault settings
   - heartbeat settings
-
-- [config/mosquitto.conf](./config/mosquitto.conf)
-  Mosquitto broker configuration used by Docker Compose.
 
 ## `simulator/`
 
