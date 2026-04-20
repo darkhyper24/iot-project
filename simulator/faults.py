@@ -42,6 +42,8 @@ class FaultInjector:
             self.fault_data = {"delay_ticks": random.randint(1, 3)}
         elif fault == "node_dropout":
             self.fault_data = {"silent": True}
+        elif fault == "sentinel_trip":
+            self.fault_data = {"sentinel": True}
 
         self._apply_active_fault(current_temp)
 

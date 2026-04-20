@@ -1,4 +1,5 @@
 from simulator import physics
+from simulator import addressing
 from simulator.faults import FaultInjector
 
 
@@ -10,10 +11,17 @@ class Room:
         self.floor_id = f"f{floor:02d}"
         self.room_id = f"r{self.room_number:03d}"
         self.id = f"{building_id}-{self.floor_id}-{self.room_id}"
+
+        # Phase 2 PDF-style slugs; legacy aliases kept for tooling
         self.mqtt_floor = f"floor_{floor:02d}"
         self.mqtt_room = f"room_{self.room_number:03d}"
         self.mqtt_building = self._format_building_slug(building_id)
-        self.mqtt_path = f"{config['mqtt']['topic_prefix']}/{self.mqtt_building}/{self.mqtt_floor}/{self.mqtt_room}"
+        self.phase2_base = addressing.mqtt_topic_base(config, floor, self.room_number)
+        self.mqtt_path = self.phase2_base
+
+        self._room_num_on_floor = room_num
+        self.uses_mqtt = addressing.is_mqtt_room(room_num, config)
+        self.uses_coap = addressing.is_coap_room(room_num, config)
 
         thermal = config["thermal"]
         if state:
@@ -120,6 +128,14 @@ class Room:
         return {
             "room_id": self.id,
             "status": "alive",
+            "timestamp": timestamp,
+        }
+
+    def sentinel_payload(self, timestamp: int) -> dict:
+        return {
+            "room_id": self.id,
+            "event": "sentinel_alert",
+            "severity": "high",
             "timestamp": timestamp,
         }
 

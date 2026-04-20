@@ -1,0 +1,19 @@
+FROM hivemq/hivemq-ce:latest
+
+ARG RBAC_VERSION=4.6.12
+
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends curl unzip ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL -o /tmp/rbac.zip \
+    "https://github.com/hivemq/hivemq-file-rbac-extension/releases/download/${RBAC_VERSION}/hivemq-file-rbac-extension-${RBAC_VERSION}.zip" \
+    && unzip -q /tmp/rbac.zip -d /tmp \
+    && mv "/tmp/hivemq-file-rbac-extension" /opt/hivemq/extensions/hivemq-file-rbac-extension \
+    && rm -f /tmp/rbac.zip
+
+# Override extension config (PLAIN passwords + listener names) from build context
+COPY config/hivemq/extensions/hivemq-file-rbac-extension/conf/config.xml \
+    /opt/hivemq/extensions/hivemq-file-rbac-extension/conf/config.xml
+
+USER hivemq

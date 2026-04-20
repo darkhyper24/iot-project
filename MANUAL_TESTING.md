@@ -4,15 +4,39 @@ This guide walks through manual verification of the major requirements from sect
 
 ## Prerequisites
 
-- Open all terminals in the project root:
-
-```bash
-cd "/run/media/enkea/New Volume/University/Senior/Second Semester/SWAPD 453 IOT/Project/iot-project"
-```
+- Open all terminals in the **repository root** (where `docker-compose.yaml` lives).
 
 - Use `docker compose`, not `docker-compose`.
 
-- Install **mosquitto** clients on the host (`brew install mosquitto` on macOS) for subscribe/publish commands below.
+- Install **mosquitto** clients on the host (`brew install mosquitto` on macOS) and **jq** for reading generated credentials (`brew install jq`).
+
+- **Security defaults (TLS + File RBAC + per-room MQTT users):** before the first `docker compose up`, run:
+
+```bash
+cp .env.example .env
+./scripts/gen_broker_keystore.sh
+python scripts/generate_campus_secrets.py
+```
+
+The examples below assume **MQTT over TLS on port 8883** with `config/certs/ca.crt` and credentials from `config/secrets/mqtt_nodes.json`. For room `b01-f01-r101`, define helper variables:
+
+```bash
+export MQTT_USER=$(jq -r '.nodes[] | select(.room_id=="b01-f01-r101") | .username' config/secrets/mqtt_nodes.json)
+export MQTT_PASS=$(jq -r '.nodes[] | select(.room_id=="b01-f01-r101") | .password' config/secrets/mqtt_nodes.json)
+export MOSQ="mosquitto_sub -h localhost -p 8883 --cafile config/certs/ca.crt -u $MQTT_USER -P $MQTT_PASS"
+export MOSQ_PUB="mosquitto_pub -h localhost -p 8883 --cafile config/certs/ca.crt -u $MQTT_USER -P $MQTT_PASS"
+```
+
+The generator also prints a **`campus_observer`** user (broad `campus/b01/#` permission) for wildcard subscriptions and for publishing **floor** / **building** command topics. After `python scripts/generate_campus_secrets.py`, set:
+
+```bash
+export OBS_USER=campus_observer
+export OBS_PASS='<password printed by generate_campus_secrets.py>'
+export MOSQ_OBS="mosquitto_sub -h localhost -p 8883 --cafile config/certs/ca.crt -u $OBS_USER -P $OBS_PASS"
+export MOSQ_OBS_PUB="mosquitto_pub -h localhost -p 8883 --cafile config/certs/ca.crt -u $OBS_USER -P $OBS_PASS"
+```
+
+For **plain MQTT on 1883** (no TLS), switch HiveMQ to `config/hivemq/conf/config.plain-only.xml`, set `MQTT_USE_TLS=false` and `MQTT_BROKER_PORT=1883`, and omit `--cafile`/`-u`/`-P` if your broker allows anonymous clients (not true when File RBAC is enforcing users).
 
 
 ## Terminal Layout
@@ -39,8 +63,8 @@ Leave Terminal 1 running.
 Expected startup indicators in Terminal 1:
 
 - `Connected to PostgreSQL`
-- `Connected to MQTT broker`
-- `Fleet initialized: 200 rooms`
+- Multiple `MQTT connected` lines (100 MQTT clients) and `CoAP server listening`
+- `Fleet initialized: 200 rooms (100 MQTT, 100 CoAP; ...)`
 - `World engine running`
 
 ## 1. Verify Telemetry for One Room
@@ -48,13 +72,13 @@ Expected startup indicators in Terminal 1:
 In Terminal 2:
 
 ```bash
-mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry'
+$MOSQ -t 'campus/b01/f01/r101/telemetry'
 ```
 
 What to check:
 
 - Telemetry is continuously published
-- Topic shape is `campus/bldg_01/floor_01/room_101/telemetry`
+- Topic shape is `campus/b01/f01/r101/telemetry` (Phase 2 layout)
 - Payload includes:
   - `sensor_id`
   - `timestamp`
@@ -73,7 +97,7 @@ What to check:
 In Terminal 3:
 
 ```bash
-mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/heartbeat'
+$MOSQ -t 'campus/b01/f01/r101/heartbeat'
 ```
 
 What to check:
@@ -89,7 +113,7 @@ What to check:
 In Terminal 4:
 
 ```bash
-mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/fleet_monitoring/heartbeat'
+$MOSQ -t 'campus/b01/fleet_monitoring/heartbeat'
 ```
 
 What to check:
@@ -127,7 +151,7 @@ What to check:
 In Terminal 5:
 
 ```bash
-mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":80}'
+$MOSQ_PUB -t 'campus/b01/f01/r101/cmd' -q 2 -m '{\"hvac_mode\":\"ON\",\"target_temp\":26,\"lighting_dimmer\":80}'
 ```
 
 Then check Terminal 2.
@@ -153,8 +177,10 @@ Expected:
 In Terminal 5:
 
 ```bash
-mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_02/command' -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'
+$MOSQ_OBS_PUB -t 'campus/b01/f02/cmd' -q 2 -m '{\"hvac_mode\":\"ECO\",\"target_temp\":24}'
 ```
+
+The simulator currently subscribes each MQTT client only to that room’s `.../r###/cmd` topic, so a floor-wide publish may not reach room handlers unless you extend subscriptions. This step still validates broker ACLs for the `campus_observer` identity.
 
 Then check:
 
@@ -171,8 +197,10 @@ Expected:
 In Terminal 5:
 
 ```bash
-mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/command' -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'
+$MOSQ_OBS_PUB -t 'campus/b01/cmd' -q 2 -m '{\"hvac_mode\":\"OFF\",\"target_temp\":22}'
 ```
+
+Same note as section 6: building-wide `cmd` routing depends on MQTT subscriptions in the simulator.
 
 Then check:
 
@@ -189,7 +217,7 @@ Expected:
 First, set a room to a known non-default command state:
 
 ```bash
-mosquitto_pub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/command' -m '{\"hvac_mode\":\"ON\",\"target_temp\":26}'
+$MOSQ_PUB -t 'campus/b01/f01/r101/cmd' -q 2 -m '{\"hvac_mode\":\"ON\",\"target_temp\":26}'
 ```
 
 Check the database before restart:
@@ -213,7 +241,7 @@ docker compose exec -T postgres psql -U iot_user -d iot_campus -c "SELECT room_i
 Then read one telemetry message:
 
 ```bash
-timeout 5 mosquitto_sub -h localhost -p 1883 -t 'campus/bldg_01/floor_01/room_101/telemetry' -C 1
+timeout 5 $MOSQ -t 'campus/b01/f01/r101/telemetry' -C 1
 ```
 
 What to check:
@@ -257,7 +285,7 @@ What to check:
 If you want to look for occupied rooms across the fleet:
 
 ```bash
-timeout 10 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep '\"occupancy\": true'
+timeout 10 $MOSQ_OBS -t 'campus/+/+/+/telemetry' | grep '\"occupancy\": true'
 ```
 
 ## 11. Verify Fault Modeling
@@ -285,7 +313,7 @@ docker compose up --build -d simulator
 Now watch fault-bearing telemetry:
 
 ```bash
-timeout 15 mosquitto_sub -h localhost -p 1883 -t 'campus/+/+/+/telemetry' | grep -v '"fault": "none"'
+timeout 15 $MOSQ_OBS -t 'campus/+/+/+/telemetry' | grep -v '"fault": "none"'
 ```
 
 What to look for:
@@ -333,6 +361,31 @@ If you also want to delete persisted DB data:
 docker compose down -v
 ```
 
+## Phase 2 — MQTT + CoAP + TLS (current simulator)
+
+**MQTT topics** use `campus/b01/f##/r###/...` (rooms 1–10 per floor on MQTT). Example telemetry subscription (room 101 on floor 1):
+
+```bash
+$MOSQ -t 'campus/b01/f01/r101/telemetry'
+```
+
+Commands (QoS 2 on the simulator side):
+
+```bash
+$MOSQ_PUB -t 'campus/b01/f01/r101/cmd' -q 2 -m '{"hvac_mode":"ECO","target_temp":23,"cmd_id":"test-1"}'
+```
+
+**CoAP DTLS** (rooms 11–20 per floor): host UDP **5694** maps to container **5684** when `phase2.coap.dtls_enabled` is true. Use a CoAP client that speaks **coaps** / DTLS PSK; the identity and hex key for `b01-f01-r111` are in `config/secrets/coap_psk.json`. Plain UDP CoAP on 5683 is only used when DTLS is disabled in config.
+
+**MQTT over TLS** is the default: `config/hivemq/conf/config.xml` includes a TLS listener; run `./scripts/gen_broker_keystore.sh`, `python scripts/generate_campus_secrets.py`, then:
+
+```bash
+docker compose up --build
+$MOSQ -t 'campus/b01/f01/r101/telemetry'
+```
+
+Expect `dup=1` / `cmd_id` dedup logs when replaying the same `cmd_id`; CoAP PUT uses the same `cmd_id` rules.
+
 ## Quick Requirement Coverage
 
 This manual flow lets you demonstrate:
@@ -351,3 +404,4 @@ This manual flow lets you demonstrate:
 - Occupancy / light correlation
 - Fault injection
 - Fleet health warnings for silent nodes
+- Phase 2: 100 MQTT clients + 100 CoAP resources, TLS-ready broker overlay, CoAP Observe + CON PUT

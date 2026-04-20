@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Reference ACL shape for HiveMQ Enterprise / Security extensions.
+  HiveMQ CE does not ship file-based ACL; use a single shared MQTT user in dev,
+  or deploy Enterprise / a plugin that consumes this style of policy.
+
+  Example intent (per-floor users matching campus/b01/f{K}/#):
+  - user floor01 may publish/subscribe campus/b01/f01/#
+  - user floor02 may publish/subscribe campus/b01/f02/#
+  ...
+  Align usernames/passwords with scripts/gen_mqtt_passwords.py output and gmqtt credentials.
+-->
+<acl-policy xmlns="urn:hivemq:acl:1.0">
+    <rules>
+        <rule>
+            <clients>
+                <client-id>sim-b0101</client-id>
+            </clients>
+            <topics>
+                <topic>campus/b01/f01/r101/#</topic>
+            </topics>
+            <permissions>
+                <permission>publish</permission>
+                <permission>subscribe</permission>
+            </permissions>
+        </rule>
+    </rules>
+</acl-policy>

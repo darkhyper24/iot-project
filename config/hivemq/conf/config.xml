@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plain 1883 + TLS 8883. Requires broker.jks from scripts/gen_broker_keystore.sh (see config/certs/README.txt). -->
+<hivemq>
+
+    <listeners>
+        <tcp-listener>
+            <port>1883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>mqtt-plain</name>
+        </tcp-listener>
+
+        <tls-tcp-listener>
+            <port>8883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>mqtt-tls</name>
+            <tls>
+                <keystore>
+                    <path>/opt/hivemq/certs/broker.jks</path>
+                    <password>changeit</password>
+                    <private-key-password>changeit</private-key-password>
+                </keystore>
+                <client-authentication-mode>NONE</client-authentication-mode>
+            </tls>
+        </tls-tcp-listener>
+    </listeners>
+
+</hivemq>

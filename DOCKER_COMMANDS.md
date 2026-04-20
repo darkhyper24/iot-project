@@ -2,11 +2,22 @@
 
 This file is a quick command catalog for manually interacting with the simulator.
 
-Run all commands from the project root:
+Run all commands from the **repository root** (where `docker-compose.yaml` lives).
 
-```bash
-cd "/run/media/enkea/New Volume/University/Senior/Second Semester/SWAPD 453 IOT/Project/iot-project"
-```
+## Secure stack (first-time)
+
+1. `cp .env.example .env` and adjust if needed.
+2. `./scripts/gen_broker_keystore.sh` — creates `config/certs/broker.jks`, `ca.crt`, etc.
+3. `python scripts/generate_campus_secrets.py` — creates `config/secrets/mqtt_nodes.json`, `config/secrets/coap_psk.json`, and `config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml` (gitignored).
+4. `docker compose up --build`
+
+Default simulator settings use **MQTT TLS 8883** (`MQTT_USE_TLS=true`), per-room user/password from `mqtt_nodes.json`, and **CoAP DTLS** on **5684** (host UDP **5694**).
+
+### Local dev without TLS / without keystore
+
+- Copy `config/hivemq/conf/config.plain-only.xml` over `config/hivemq/conf/config.xml`.
+- Set `MQTT_USE_TLS=false`, `MQTT_BROKER_PORT=1883` in `.env`.
+- You still need per-node MQTT credentials if the File RBAC extension is enabled (or use shared `MQTT_USERNAME` / `MQTT_PASSWORD` only if the file-rbac `credentials.xml` is not mounted).
 
 ## Start / Stop
 
@@ -40,11 +51,12 @@ docker compose up -d thingsboard
 
 | Service | Host port | Notes |
 |--------|-----------|--------|
-| HiveMQ MQTT | 1883 | Campus MQTT backbone |
+| HiveMQ MQTT | 1883 | Plain listener (optional; remove or bind locally for TLS-only mode) |
+| HiveMQ MQTT TLS | 8883 | Default simulator path (`MQTT_USE_TLS=true`) |
 | ThingsBoard UI | 9090 | http://localhost:9090 |
 | ThingsBoard Edge RPC | 7070 | |
 | Simulator Postgres | 5433 | |
-| Simulator CoAP (UDP) | 5693 | Maps to container 5683 |
+| Simulator CoAP DTLS (UDP) | 5694 | Maps to container **5684** when `phase2.coap.dtls_enabled` is true |
 | Node-RED floor 1–3 | 1880–1882 | |
 | Node-RED floor 4–10 | 1890–1896 | |
 
@@ -88,22 +100,30 @@ Show fleet health warnings only:
 docker compose logs -f simulator | grep fleet_health_warning
 ```
 
-## Topic Structure
+## Topic Structure (Phase 2)
 
-Use these topic shapes:
+Building slug matches `config/config.yaml` `building.id` (default `b01`). MQTT is used for **rooms 1–10 on each floor**; rooms **11–20** use CoAP only (no MQTT under these paths).
 
 - Single room telemetry:
-  `campus/bldg_01/floor_01/room_101/telemetry`
+  `campus/b01/f01/r101/telemetry`
 - Single room heartbeat:
-  `campus/bldg_01/floor_01/room_101/heartbeat`
+  `campus/b01/f01/r101/heartbeat`
+- Last-will (offline):
+  `campus/b01/f01/r101/lwt`
 - Fleet monitoring heartbeat:
-  `campus/bldg_01/fleet_monitoring/heartbeat`
-- Single room command:
-  `campus/bldg_01/floor_01/room_101/command`
-- Single floor command:
-  `campus/bldg_01/floor_01/command`
-- Whole building command:
-  `campus/bldg_01/command`
+  `campus/b01/fleet_monitoring/heartbeat`
+- Single room command (QoS 2 subscribe):
+  `campus/b01/f01/r101/cmd`
+- Single floor command (all MQTT rooms on that floor):
+  `campus/b01/f01/cmd`
+- Whole-building command (all MQTT rooms):
+  `campus/b01/cmd`
+
+**MQTT TLS (default):** run `scripts/gen_broker_keystore.sh`, keep `config/hivemq/conf/config.xml` (PLAIN + TLS listeners). Set `.env` from `.env.example` (`MQTT_USE_TLS=true`, `MQTT_BROKER_PORT=8883`, `MQTT_TLS_CHECK_HOSTNAME=false`). Subscribe with `mosquitto_sub -h localhost -p 8883 --cafile config/certs/ca.crt -u <user> -P <password> -t ...` where `user`/`password` come from `config/secrets/mqtt_nodes.json` for that room.
+
+**CoAP DTLS (default):** host UDP **5694** → container **5684**; use a CoAP client with DTLS PSK matching `config/secrets/coap_psk.json` for the room identity (e.g. `c111` for `b01-f01-r111`). Plain UDP CoAP on 5683 is used only when `phase2.coap.dtls_enabled` is false in `config/config.yaml`.
+
+Legacy topic shapes (`campus/bldg_01/floor_01/room_101/...`, `.../command`) are **not** emitted by the Phase 2 simulator.
 
 ## How To Customize Topics
 
@@ -159,6 +179,8 @@ Examples:
 ## MQTT Subscribe Commands
 
 These examples call **mosquitto_sub** / **mosquitto_pub** on your machine against HiveMQ at **localhost:1883** (published by Compose). Install clients first, e.g. on macOS: `brew install mosquitto`.
+
+**Path translation:** templates below use the older `bldg_01/floor_XX/room_XXX` naming. The Phase 2 simulator publishes **`campus/b01/f##/r###/...`** instead (see **Topic Structure (Phase 2)**). Replace segments accordingly, e.g. `floor_01/room_101` → `f01/r101`, `bldg_01` → `b01`, and use the `cmd` suffix instead of `command`.
 
 
 ### Single Room Telemetry

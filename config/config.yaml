@@ -24,10 +24,34 @@ thermal:
   occupancy_heat: 0.05
   light_threshold: 300
 
+# Phase 2: campus/b01/f##/r###/telemetry|heartbeat|cmd|lwt
+# Security defaults: TLS to 8883 + per-node creds from config/secrets/mqtt_nodes.json
 mqtt:
   broker_host: hivemq
-  broker_port: 1883
+  broker_port: 8883
   topic_prefix: "campus"
+  use_tls: true
+  tls_cafile: "/app/config/certs/ca.crt"
+  tls_certfile: ""
+  tls_keyfile: ""
+  tls_check_hostname: false
+  protocol_version: "5"
+  username: ""
+  password: ""
+  credentials_file: "config/secrets/mqtt_nodes.json"
+
+phase2:
+  mqtt_rooms_per_floor: 10
+  mqtt_connect_stagger_s: 0.05
+  coap:
+    bind_host: "0.0.0.0"
+    bind_port: 5683
+    dtls_enabled: true
+    dtls_bind_host: "0.0.0.0"
+    dtls_bind_port: 5684
+    psk_file: "config/secrets/coap_psk.json"
+    psk_identity: ""
+    psk_hex: ""
 
 faults:
   enabled: true
@@ -37,6 +61,7 @@ faults:
     frozen_sensor: true
     telemetry_delay: true
     node_dropout: true
+    sentinel_trip: true
 
 heartbeat:
   interval: 10

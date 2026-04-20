@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plain MQTT 1883 only (no TLS). Use when broker.jks is not available yet. -->
+<hivemq>
+
+    <listeners>
+        <tcp-listener>
+            <port>1883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>mqtt-plain</name>
+        </tcp-listener>
+    </listeners>
+
+</hivemq>

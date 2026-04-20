@@ -1,5 +1,10 @@
-# Phase 2 stack: HiveMQ (MQTT backbone), ThingsBoard CE, 10 Node-RED floor gateways,
+# Phase 2 stack: HiveMQ (MQTT backbone + File RBAC), ThingsBoard CE, 10 Node-RED floor gateways,
 # simulator Postgres, and the campus simulator.
+#
+# Before first `docker compose up` (security defaults):
+#   1. cp .env.example .env
+#   2. scripts/gen_broker_keystore.sh   → broker.jks + ca.crt under config/certs/
+#   3. python scripts/generate_campus_secrets.py   → mqtt_nodes.json, coap_psk.json, HiveMQ credentials.xml
 #
 # ThingsBoard first-time DB init (run once after `docker compose up -d postgres-tb` is healthy):
 #   docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=false thingsboard
@@ -52,12 +57,19 @@ services:
       - iot-net
 
   hivemq:
-    image: hivemq/hivemq-ce:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.hivemq
+    image: iot-hivemq-ce:file-rbac
     hostname: hivemq
     ports:
       - "1883:1883"
+      - "8883:8883"
     volumes:
       - hivemq-data:/opt/hivemq/data
+      - ./config/hivemq/conf:/opt/hivemq/conf:ro
+      - ./config/certs:/opt/hivemq/certs:ro
+      - ./config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml:/opt/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml:ro
     environment:
       HIVEMQ_LOG_LEVEL: INFO
     networks:
@@ -83,6 +95,9 @@ services:
 
   simulator:
     build: .
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,11 +110,18 @@ services:
       DB_PASSWORD: iot_password
       DB_NAME: iot_campus
       MQTT_BROKER_HOST: hivemq
-      MQTT_BROKER_PORT: "1883"
+      MQTT_BROKER_PORT: ${MQTT_BROKER_PORT:-8883}
+      MQTT_USE_TLS: ${MQTT_USE_TLS:-true}
+      MQTT_TLS_CAFILE: ${MQTT_TLS_CAFILE:-/app/config/certs/ca.crt}
+      MQTT_TLS_CERTFILE: ${MQTT_TLS_CERTFILE:-/app/config/certs/client.crt}
+      MQTT_TLS_KEYFILE: ${MQTT_TLS_KEYFILE:-/app/config/certs/client.key}
+      MQTT_TLS_CHECK_HOSTNAME: ${MQTT_TLS_CHECK_HOSTNAME:-false}
+      MQTT_CREDENTIALS_FILE: ${MQTT_CREDENTIALS_FILE:-/app/config/secrets/mqtt_nodes.json}
+      COAP_PSK_FILE: ${COAP_PSK_FILE:-/app/config/secrets/coap_psk.json}
     volumes:
       - ./config:/app/config
     ports:
-      - "5693:5683/udp"
+      - "5694:5684/udp"
     ulimits:
       nofile:
         soft: 65535

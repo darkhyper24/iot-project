@@ -5,6 +5,10 @@ import random
 import time
 from typing import Any
 
+from gmqtt import Client as MQTTClient
+
+from simulator import addressing
+from simulator.coap_server import CampusCoAPSite
 from simulator.engine.commands import CommandHandler
 from simulator.models.room import Room
 
@@ -12,10 +16,17 @@ logger = logging.getLogger(__name__)
 
 
 class WorldEngine:
-    def __init__(self, config: dict, db: Any, mqtt_client):
+    def __init__(
+        self,
+        config: dict,
+        db: Any,
+        mqtt_clients: dict[str, MQTTClient],
+        coap: CampusCoAPSite | None,
+    ):
         self.config = config
         self.db = db
-        self.mqtt = mqtt_client
+        self.mqtt_clients = mqtt_clients
+        self.coap = coap
         self.rooms: list[Room] = []
         self._tasks: list[asyncio.Task] = []
         self._last_heartbeats: dict[str, float] = {}
@@ -34,7 +45,8 @@ class WorldEngine:
 
         for f in range(1, floors + 1):
             for r in range(1, rooms_per_floor + 1):
-                room_id = f"{building_id}-f{f:02d}-r{f}{r:02d}"
+                room_number = f * 100 + r
+                room_id = f"{building_id}-f{f:02d}-r{room_number:03d}"
                 state = saved_states.get(room_id)
                 room = Room(building_id, f, r, self.config, state=state)
                 self.rooms.append(room)
@@ -47,24 +59,33 @@ class WorldEngine:
             self._last_heartbeats[room.id] = now
 
         total = len(self.rooms)
+        mqtt_n = sum(1 for x in self.rooms if x.uses_mqtt)
+        coap_n = sum(1 for x in self.rooms if x.uses_coap)
         logger.info(
-            "Fleet initialized: %d rooms (%d restored from DB, %d fresh)",
-            total, restored, total - restored,
+            "Fleet initialized: %d rooms (%d MQTT, %d CoAP; %d restored from DB, %d fresh)",
+            total, mqtt_n, coap_n, restored, total - restored,
         )
 
-    def setup_mqtt(self) -> None:
-        self._cmd_handler = CommandHandler(
-            self.config, self.rooms, self._rooms_by_id,
-            self.db, self._simulation_time,
-        )
-        self.mqtt.on_message = self._cmd_handler.on_message
+    def setup_mqtt(self, cmd_handler: CommandHandler) -> None:
+        self._cmd_handler = cmd_handler
+        qos_cmd = 2
 
-        prefix = self.config["mqtt"]["topic_prefix"]
-        building_slug = self.rooms[0].mqtt_building
-        self.mqtt.subscribe(f"{prefix}/{building_slug}/command", qos=1)
-        self.mqtt.subscribe(f"{prefix}/{building_slug}/+/command", qos=1)
-        self.mqtt.subscribe(f"{prefix}/{building_slug}/+/+/command", qos=1)
-        logger.info("MQTT command subscriptions registered for %s", building_slug)
+        for room in self.rooms:
+            if not room.uses_mqtt:
+                continue
+            client = self.mqtt_clients.get(room.id)
+            if client is None:
+                logger.error("Missing MQTT client for room %s", room.id)
+                continue
+            client.on_message = cmd_handler.on_message
+            cmd_topic = addressing.mqtt_cmd_topic(self.config, room.floor_number, room.room_number)
+            client.subscribe(cmd_topic, qos=qos_cmd)
+            logger.debug("MQTT subscribe qos=%s %s", qos_cmd, cmd_topic)
+
+        logger.info("MQTT per-room cmd subscriptions registered (%d clients)", len(self.mqtt_clients))
+
+    def _fleet_monitoring_topic(self) -> str:
+        return addressing.fleet_monitoring_topic(self.config)
 
     async def run(self) -> None:
         for room in self.rooms:
@@ -77,18 +98,12 @@ class WorldEngine:
         logger.info("World engine running: %d room tasks + sync + fleet health", len(self.rooms))
         await asyncio.gather(*self._tasks)
 
-    def _fleet_monitoring_topic(self) -> str:
-        prefix = self.config["mqtt"]["topic_prefix"]
-        building_slug = self.rooms[0].mqtt_building
-        return f"{prefix}/{building_slug}/fleet_monitoring/heartbeat"
-
     async def _room_loop(self, room: Room) -> None:
         tick_interval = self.config["simulation"]["tick_interval"]
         max_jitter = self.config["simulation"]["max_jitter"]
         heartbeat_interval = self.config["heartbeat"]["interval"]
         last_heartbeat_at = 0
 
-        # Startup jitter to prevent thundering herd
         await asyncio.sleep(random.uniform(0, max_jitter))
 
         while True:
@@ -98,38 +113,48 @@ class WorldEngine:
             room.tick(self.config, timestamp)
             room.maybe_inject_fault(self.config)
 
-            # Node dropout — skip publishing
             if room.active_fault == "node_dropout":
                 elapsed = time.perf_counter() - start
                 await asyncio.sleep(max(0, tick_interval - elapsed))
                 continue
 
-            # Telemetry delay fault
             if room.active_fault == "telemetry_delay":
                 delay_ticks = room.fault_data.get("delay_ticks", 1)
                 await asyncio.sleep(delay_ticks * tick_interval * 0.1)
 
-            # Publish telemetry
-            payload = room.to_telemetry(timestamp)
-            topic = f"{room.mqtt_path}/telemetry"
-            self.mqtt.publish(topic, json.dumps(payload), qos=0)
+            payload_dict = room.to_telemetry(timestamp)
+            payload_json = json.dumps(payload_dict)
+
+            if room.uses_mqtt:
+                client = self.mqtt_clients.get(room.id)
+                if client is None:
+                    logger.error("No MQTT client for %s", room.id)
+                else:
+                    topic_t = addressing.mqtt_telemetry_topic(
+                        self.config, room.floor_number, room.room_number,
+                    )
+                    client.publish(topic_t, payload_json, qos=0)
+
+            elif room.uses_coap and self.coap is not None:
+                self.coap.notify_telemetry(room, payload_json.encode("utf-8"))
+                self.coap.notify_sentinel(room, timestamp)
 
             if timestamp - last_heartbeat_at >= heartbeat_interval:
-                heartbeat_payload = json.dumps(room.heartbeat_payload(timestamp))
-                self.mqtt.publish(
-                    f"{room.mqtt_path}/heartbeat",
-                    heartbeat_payload,
-                    qos=0,
-                )
-                self.mqtt.publish(
-                    self._fleet_monitoring_topic(),
-                    heartbeat_payload,
-                    qos=0,
-                )
                 self._last_heartbeats[room.id] = time.time()
                 last_heartbeat_at = timestamp
+                if room.uses_mqtt:
+                    client = self.mqtt_clients.get(room.id)
+                    if client is not None:
+                        hb = json.dumps(room.heartbeat_payload(timestamp))
+                        client.publish(
+                            addressing.mqtt_heartbeat_topic(
+                                self.config, room.floor_number, room.room_number,
+                            ),
+                            hb,
+                            qos=0,
+                        )
+                        client.publish(self._fleet_monitoring_topic(), hb, qos=0)
 
-            # Drift compensation
             elapsed = time.perf_counter() - start
             await asyncio.sleep(max(0, tick_interval - elapsed))
 
