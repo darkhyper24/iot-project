@@ -30,19 +30,14 @@ Notes:
 - This uses ThingsBoard's supported REST layer, not direct PostgreSQL table edits.
 - If you already created some entities manually, saving again will update them.
 """
-#login as admin in thingsboard then create a tenant with email admin@gmail.com and password admins then login as the tenant then create 2 device profiles MQTT_Room_Device and CoAP_Room_Device and both with transport type mqtt after that u can run this seeder file
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 import requests
-from tb_rest_client.rest_client_ce import RestClientCE
-from tb_rest_client.rest import ApiException
-from tb_rest_client.rest_client_ce import Asset, EntityRelation
 
 
 MQTT_PROFILE_NAME = "MQTT_Room_Device"
@@ -88,6 +83,33 @@ def _extract_items(payload: Any) -> list[dict]:
     return []
 
 
+def upsert_device_profile(base_url: str, jwt: str, name: str) -> str:
+    """Find or create a device profile with MQTT transport type."""
+    try:
+        return find_profile_id(base_url, jwt, "device", name)
+    except RuntimeError:
+        pass
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    payload = {
+        "name": name,
+        "type": "DEFAULT",
+        "transportType": "MQTT",
+        "provisionType": "DISABLED",
+        "profileData": {
+            "configuration": {"type": "DEFAULT"},
+            "transportConfiguration": {"type": "MQTT"},
+            "provisionConfiguration": {"type": "DISABLED"},
+            "alarms": [],
+        },
+    }
+    resp = requests.post(
+        f"{base_url.rstrip('/')}/api/deviceProfile",
+        json=payload, headers=headers, timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()["id"]["id"]
+
+
 def find_profile_id(base_url: str, jwt: str, profile_kind: str, profile_name: str) -> str:
     """
     profile_kind: 'device' or 'asset'
@@ -122,8 +144,91 @@ def find_profile_id(base_url: str, jwt: str, profile_kind: str, profile_name: st
     raise RuntimeError(f"Profile not found: {profile_kind} profile '{profile_name}'")
 
 
-def make_relation(parent_id, child_id, relation_type="Contains") -> EntityRelation:
-    return EntityRelation(_from=parent_id, to=child_id, type=relation_type)
+def _find_asset_id(base_url: str, jwt: str, name: str) -> Optional[str]:
+    """Return the asset entity ID if one with this exact name exists, else None."""
+    r = requests.get(
+        f"{base_url.rstrip('/')}/api/tenant/assets?pageSize=500&page=0&textSearch={requests.utils.quote(name)}",
+        headers={"X-Authorization": f"Bearer {jwt}", "Accept": "application/json"},
+        timeout=30,
+    )
+    r.raise_for_status()
+    for item in _extract_items(r.json()):
+        if item.get("name") == name:
+            raw_id = item.get("id", {})
+            return raw_id.get("id") if isinstance(raw_id, dict) else raw_id
+    return None
+
+
+def _find_device_id(base_url: str, jwt: str, name: str) -> Optional[str]:
+    """Return the device entity ID if one with this exact name exists, else None."""
+    r = requests.get(
+        f"{base_url.rstrip('/')}/api/tenant/devices?pageSize=500&page=0&textSearch={requests.utils.quote(name)}",
+        headers={"X-Authorization": f"Bearer {jwt}", "Accept": "application/json"},
+        timeout=30,
+    )
+    r.raise_for_status()
+    for item in _extract_items(r.json()):
+        if item.get("name") == name:
+            raw_id = item.get("id", {})
+            return raw_id.get("id") if isinstance(raw_id, dict) else raw_id
+    return None
+
+
+def _get_default_asset_profile_id(base_url: str, jwt: str) -> str:
+    r = requests.get(
+        f"{base_url.rstrip('/')}/api/assetProfileInfos?pageSize=100&page=0",
+        headers={"X-Authorization": f"Bearer {jwt}", "Accept": "application/json"},
+        timeout=30,
+    )
+    r.raise_for_status()
+    for item in _extract_items(r.json()):
+        if item.get("default") or item.get("name") == "default":
+            raw_id = item.get("id", {})
+            return raw_id.get("id") if isinstance(raw_id, dict) else raw_id
+    raise RuntimeError("Default asset profile not found")
+
+
+def upsert_asset(base_url: str, jwt: str, name: str, profile_id: str) -> str:
+    """Create or update an asset by name; return its entity ID."""
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    existing_id = _find_asset_id(base_url, jwt, name)
+    payload: Dict[str, Any] = {
+        "name": name,
+        "label": name,
+        "assetProfileId": {"id": profile_id, "entityType": "ASSET_PROFILE"},
+    }
+    if existing_id:
+        payload["id"] = {"id": existing_id, "entityType": "ASSET"}
+    r = requests.post(f"{base_url.rstrip('/')}/api/asset", json=payload, headers=headers, timeout=30)
+    r.raise_for_status()
+    return r.json()["id"]["id"]
+
+
+def upsert_device(base_url: str, jwt: str, name: str, profile_id: str) -> str:
+    """Create or update a device by name; return its entity ID."""
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    existing_id = _find_device_id(base_url, jwt, name)
+    payload: Dict[str, Any] = {
+        "name": name,
+        "label": name,
+        "deviceProfileId": {"id": profile_id, "entityType": "DEVICE_PROFILE"},
+    }
+    if existing_id:
+        payload["id"] = {"id": existing_id, "entityType": "DEVICE"}
+    r = requests.post(f"{base_url.rstrip('/')}/api/device", json=payload, headers=headers, timeout=30)
+    r.raise_for_status()
+    return r.json()["id"]["id"]
+
+
+def save_relation(base_url: str, jwt: str, from_id: str, from_type: str, to_id: str, to_type: str) -> None:
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    payload = {
+        "from": {"id": from_id, "entityType": from_type},
+        "to": {"id": to_id, "entityType": to_type},
+        "type": "Contains",
+    }
+    requests.post(f"{base_url.rstrip('/')}/api/relation", json=payload, headers=headers, timeout=30).raise_for_status()
+
 
 
 def main() -> int:
@@ -136,100 +241,56 @@ def main() -> int:
     # 1) Login and discover profile IDs
     auth = login_for_jwt(args.url, args.username, args.password)
 
-    mqtt_profile_id = find_profile_id(args.url, auth.token, "device", MQTT_PROFILE_NAME)
-    coap_profile_id = find_profile_id(args.url, auth.token, "device", COAP_PROFILE_NAME)
+    mqtt_profile_id = upsert_device_profile(args.url, auth.token, MQTT_PROFILE_NAME)
+    coap_profile_id = upsert_device_profile(args.url, auth.token, COAP_PROFILE_NAME)
 
-    print(f"Found MQTT device profile id: {mqtt_profile_id}")
-    print(f"Found CoAP device profile id:  {coap_profile_id}")
+    print(f"MQTT device profile id: {mqtt_profile_id}")
+    print(f"CoAP  device profile id: {coap_profile_id}")
 
-    # 2) Use the supported ThingsBoard REST client to create / update entities
-    with RestClientCE(base_url=args.url) as rest_client:
-        try:
-            rest_client.login(username=args.username, password=args.password)
+    # 2) Default asset profile
+    asset_profile_id = _get_default_asset_profile_id(args.url, auth.token)
 
-            # default asset profile is enough for this phase unless you want custom asset profiles
-            default_asset_profile_id = rest_client.get_default_asset_profile_info().id
+    # 3) Create / update top-level assets
+    campus_id  = upsert_asset(args.url, auth.token, "Campus", asset_profile_id)
+    building_id = upsert_asset(args.url, auth.token, "b01",   asset_profile_id)
 
-            # 3) Create assets
-            campus = rest_client.save_asset(Asset(name="Campus", asset_profile_id=default_asset_profile_id))
-            building = rest_client.save_asset(Asset(name="b01", asset_profile_id=default_asset_profile_id))
+    floor_ids = []
+    for floor_no in range(1, 11):
+        fid = upsert_asset(args.url, auth.token, f"b01-f{floor_no:02d}", asset_profile_id)
+        floor_ids.append(fid)
 
-            floors = []
-            for floor_no in range(1, 11):
-                floor_name = f"b01-f{floor_no:02d}"
-                floors.append(
-                    rest_client.save_asset(Asset(name=floor_name, asset_profile_id=default_asset_profile_id))
-                )
+    room_ids: list[str] = []
+    for floor_no in range(1, 11):
+        for room_on_floor in range(1, 21):
+            rid = upsert_asset(args.url, auth.token, f"b01-f{floor_no:02d}-r{room_on_floor:03d}", asset_profile_id)
+            room_ids.append(rid)
+        print(f"  Floor {floor_no:02d} room assets done")
 
-            rooms = []
-            for room_no in range(1, 201):
-                floor_no = (room_no - 1) // 20 + 1
-                room_name = f"b01-f{floor_no:02d}-r{room_no:03d}"
-                rooms.append(
-                    rest_client.save_asset(Asset(name=room_name, asset_profile_id=default_asset_profile_id))
-                )
+    print("Assets created/updated.")
 
-            print("Assets created/updated.")
+    # 4) Asset hierarchy relations
+    save_relation(args.url, auth.token, campus_id, "ASSET", building_id, "ASSET")
+    for fid in floor_ids:
+        save_relation(args.url, auth.token, building_id, "ASSET", fid, "ASSET")
+    for idx, rid in enumerate(room_ids):
+        save_relation(args.url, auth.token, floor_ids[idx // 20], "ASSET", rid, "ASSET")
 
-            # 4) Link asset hierarchy
-            rest_client.save_relation(make_relation(campus.id, building.id))
-            for floor in floors:
-                rest_client.save_relation(make_relation(building.id, floor.id))
+    print("Asset relations created/updated.")
 
-            for idx, room in enumerate(rooms, start=1):
-                floor_no = (idx - 1) // 20
-                rest_client.save_relation(make_relation(floors[floor_no].id, room.id))
+    # 5) Create devices and link each to its room asset
+    for floor_no in range(1, 11):
+        for room_on_floor in range(1, 21):
+            room_name  = f"b01-f{floor_no:02d}-r{room_on_floor:03d}"
+            profile_id = mqtt_profile_id if room_on_floor <= 10 else coap_profile_id
+            device_id  = upsert_device(args.url, auth.token, room_name, profile_id)
 
-            print("Asset relations created/updated.")
+            room_idx = (floor_no - 1) * 20 + (room_on_floor - 1)
+            save_relation(args.url, auth.token, room_ids[room_idx], "ASSET", device_id, "DEVICE")
+        print(f"  Floor {floor_no:02d} devices done")
 
-            # 5) Create devices and link each device to its room
-            headers = {
-                "X-Authorization": f"Bearer {auth.token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            }
-            for room_no in range(1, 201):
-                floor_no = (room_no - 1) // 20 + 1
-                room_name = f"b01-f{floor_no:02d}-r{room_no:03d}"
-                # rooms 1-10 of each floor → MQTT, rooms 11-20 → CoAP
-                profile_id = mqtt_profile_id if (room_no - 1) % 20 < 10 else coap_profile_id
-
-                device_payload = {
-                    "name": room_name,
-                    "label": room_name,
-                    "deviceProfileId": {"id": profile_id, "entityType": "DEVICE_PROFILE"},
-                }
-                dev_resp = requests.post(
-                    f"{args.url.rstrip('/')}/api/device",
-                    json=device_payload,
-                    headers=headers,
-                    timeout=30,
-                )
-                dev_resp.raise_for_status()
-                device_id = dev_resp.json()["id"]["id"]
-
-                # room asset -> device relation
-                room_asset = rooms[room_no - 1]
-                room_asset_id = room_asset.id.id if hasattr(room_asset.id, "id") else room_asset.id["id"]
-                rel_payload = {
-                    "from": {"id": room_asset_id, "entityType": "ASSET"},
-                    "to": {"id": device_id, "entityType": "DEVICE"},
-                    "type": "Contains",
-                }
-                requests.post(
-                    f"{args.url.rstrip('/')}/api/relation",
-                    json=rel_payload,
-                    headers=headers,
-                    timeout=30,
-                ).raise_for_status()
-
-            print("Devices created/updated and linked to rooms.")
-            print("Done.")
-            return 0
-
-        except ApiException as e:
-            print("ThingsBoard API error:", e, file=sys.stderr)
-            return 1
+    print("Devices created/updated and linked to rooms.")
+    print("Done.")
+    return 0
 
 
 if __name__ == "__main__":

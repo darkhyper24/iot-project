@@ -426,5 +426,37 @@
                 "file": "/usr/src/node-red/node_modules/@node-red/nodes/core/storage/23-watch.js"
             }
         }
+    },
+    "node-red-contrib-coap": {
+        "name": "node-red-contrib-coap",
+        "version": "0.9.0",
+        "local": true,
+        "user": true,
+        "nodes": {
+            "coap-in": {
+                "name": "coap-in",
+                "types": [
+                    "coap-server",
+                    "coap in",
+                    "coap response"
+                ],
+                "enabled": true,
+                "local": true,
+                "user": false,
+                "module": "node-red-contrib-coap",
+                "file": "/data/node_modules/node-red-contrib-coap/coap/coap-in.js"
+            },
+            "coap-request": {
+                "name": "coap-request",
+                "types": [
+                    "coap request"
+                ],
+                "enabled": true,
+                "local": true,
+                "user": false,
+                "module": "node-red-contrib-coap",
+                "file": "/data/node_modules/node-red-contrib-coap/coap/coap-request.js"
+            }
+        }
     }
 }

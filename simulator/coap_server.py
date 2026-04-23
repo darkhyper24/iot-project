@@ -115,6 +115,7 @@ class CampusCoAPSite:
         self._telemetry: dict[str, TelemetryResource] = {}
         self._sentinel: dict[str, SentinelResource] = {}
         self._context: Context | None = None
+        self._dtls_context: Context | None = None
         self.root = resource.Site()
 
     def build(self) -> resource.Site:
@@ -146,6 +147,14 @@ class CampusCoAPSite:
         dtls_host = _cfg_dtls_host if _cfg_dtls_host not in ("", "0.0.0.0", "::") else _outbound_ip()
         dtls_port = int(coap_cfg.get("dtls_bind_port", 5684))
 
+        # Always start plain CoAP on 5683 — used by Node-RED gateways inside the Docker network
+        self._context = await Context.create_server_context(
+            self.root,
+            bind=(host, plain_port),
+            transports=["udp6"],
+        )
+        logger.info("CoAP plain server listening on udp %s:%s (Observe + PUT HVAC + Sentinel)", host, plain_port)
+
         if dtls:
             psk_map = load_coap_psk_map(self.config)
             if not psk_map:
@@ -153,25 +162,14 @@ class CampusCoAPSite:
                     "CoAP DTLS is enabled but no PSK entries loaded. Run: python scripts/generate_campus_secrets.py",
                 )
             cred = _dtls_credentials_from_psk_map(psk_map)
-            self._context = await Context.create_server_context(
+            self._dtls_context = await Context.create_server_context(
                 self.root,
                 bind=(dtls_host, dtls_port),
                 transports=["tinydtls_server"],
                 server_credentials=cred,
             )
-            logger.info(
-                "CoAP DTLS server listening on %s:%s (Observe + PUT HVAC + Sentinel)",
-                dtls_host,
-                dtls_port,
-            )
-            return self._context
+            logger.info("CoAP DTLS server listening on %s:%s", dtls_host, dtls_port)
 
-        self._context = await Context.create_server_context(
-            self.root,
-            bind=(host, plain_port),
-            transports=["udp6"],
-        )
-        logger.info("CoAP server listening on udp %s:%s (Observe + PUT HVAC + Sentinel)", host, plain_port)
         return self._context
 
     def notify_telemetry(self, room: Room, payload: bytes) -> None:
@@ -185,6 +183,9 @@ class CampusCoAPSite:
             res.refresh(timestamp)
 
     async def shutdown(self) -> None:
+        if self._dtls_context is not None:
+            await self._dtls_context.shutdown()
+            self._dtls_context = None
         if self._context is not None:
             await self._context.shutdown()
             self._context = None

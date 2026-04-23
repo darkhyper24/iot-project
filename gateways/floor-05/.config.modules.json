@@ -1,0 +1,9 @@
+{
+    "coap": {
+        "spec": "coap",
+        "module": "coap",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    }
+}
