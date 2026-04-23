@@ -1,13 +1,13 @@
 [
   {
-    "id": "e5eee602fe6e490b",
+    "id": "51ce38e5ef174a62",
     "type": "tab",
     "label": "Floor 04 Gateway",
     "disabled": false,
     "info": ""
   },
   {
-    "id": "ade825d5a3194315",
+    "id": "f6fa9ba4221f41e4",
     "type": "mqtt-broker",
     "name": "HiveMQ-f04",
     "broker": "hivemq",
@@ -33,7 +33,7 @@
     }
   },
   {
-    "id": "7e228f9d0bbc4382",
+    "id": "f5752e23d9ef40c4",
     "type": "mqtt-broker",
     "name": "ThingsBoard-gw-f04",
     "broker": "thingsboard",
@@ -50,73 +50,126 @@
     }
   },
   {
-    "id": "049f490896874041",
+    "id": "ccd88efa690c4d4b",
     "type": "mqtt in",
     "name": "HiveMQ f04",
     "topic": "campus/b01/f04/#",
     "qos": "0",
     "datatype": "auto",
-    "broker": "ade825d5a3194315",
+    "broker": "f6fa9ba4221f41e4",
     "x": 120,
     "y": 100,
-    "z": "e5eee602fe6e490b",
+    "z": "51ce38e5ef174a62",
     "wires": [
       [
-        "89ebe4d43d8245ee"
+        "6fe74aafe2ab45d5"
       ]
     ]
   },
   {
-    "id": "89ebe4d43d8245ee",
+    "id": "6fe74aafe2ab45d5",
     "type": "function",
     "name": "Format \u2192 TB Gateway",
     "func": "// topic: campus/b01/f04/rNNN/telemetry|heartbeat|lwt\nvar parts = msg.topic.split('/');\n// parts: ['campus','b01','f04','rNNN','<type>']\nif (parts.length < 5) return null;\n\nvar roomNum     = parts[3];                                        // e.g. r109\nvar msgType     = parts[4];                                        // telemetry | heartbeat | lwt\nvar rawNum      = parseInt(roomNum.slice(1));                      // 109\nvar roomOnFloor = rawNum - 4 * 100;                         // 9\nvar roomStr     = 'r' + String(roomOnFloor).padStart(3, '0');     // \"r009\"\nvar device      = 'b01-f04-' + roomStr;                  // e.g. b01-f01-r009\n\nvar data;\ntry {\n    data = (typeof msg.payload === 'string') ? JSON.parse(msg.payload) : msg.payload;\n} catch(e) {\n    return null;\n}\n\nif (msgType === 'telemetry') {\n    // TB gateway telemetry format: { \"deviceName\": [{ \"ts\": ms, \"values\": {...} }] }\n    var ts = data.timestamp ? data.timestamp * 1000 : Date.now();\n    var values = {\n        temperature:      data.temperature,\n        humidity:         data.humidity,\n        occupancy:        data.occupancy,\n        light_level:      data.light_level,\n        hvac_mode:        data.hvac_mode,\n        lighting_dimmer:  data.lighting_dimmer,\n        target_temp:      data.target_temp,\n        fault:            data.fault\n    };\n    msg.payload = JSON.stringify({ [device]: [{ ts: ts, values: values }] });\n    msg.topic   = 'v1/gateway/telemetry';\n    msg.route   = 'telemetry';\n    return msg;\n}\n\nif (msgType === 'heartbeat') {\n    msg.payload = JSON.stringify({ [device]: { status: data.status || 'alive', last_seen: data.timestamp } });\n    msg.topic   = 'v1/gateway/attributes';\n    msg.route   = 'attr';\n    return msg;\n}\n\nif (msgType === 'lwt') {\n    msg.payload = JSON.stringify({ [device]: { status: 'offline' } });\n    msg.topic   = 'v1/gateway/attributes';\n    msg.route   = 'attr';\n    return msg;\n}\n\nreturn null;",
     "outputs": 1,
     "x": 350,
     "y": 100,
-    "z": "e5eee602fe6e490b",
+    "z": "51ce38e5ef174a62",
     "wires": [
       [
-        "ee77e88d5aee4b90",
-        "d297e3b14eb14941"
+        "6b0f6baa0fdc4792",
+        "744e33a953fa4d24"
       ]
     ]
   },
   {
-    "id": "ee77e88d5aee4b90",
+    "id": "6b0f6baa0fdc4792",
     "type": "mqtt out",
     "name": "TB Telemetry",
     "topic": "",
     "qos": "0",
     "retain": "false",
-    "broker": "7e228f9d0bbc4382",
+    "broker": "f5752e23d9ef40c4",
     "x": 600,
     "y": 80,
-    "z": "e5eee602fe6e490b",
+    "z": "51ce38e5ef174a62",
     "wires": []
   },
   {
-    "id": "d297e3b14eb14941",
+    "id": "744e33a953fa4d24",
     "type": "mqtt out",
     "name": "TB Attributes",
     "topic": "",
     "qos": "0",
     "retain": "false",
-    "broker": "7e228f9d0bbc4382",
+    "broker": "f5752e23d9ef40c4",
     "x": 600,
     "y": 140,
-    "z": "e5eee602fe6e490b",
+    "z": "51ce38e5ef174a62",
     "wires": []
   },
   {
-    "id": "c12435e97c7147f3",
+    "id": "5c01aef7d4b844b7",
+    "type": "inject",
+    "name": "Announce devices connected",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 5,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 120,
+    "y": 220,
+    "z": "51ce38e5ef174a62",
+    "wires": [
+      [
+        "34341ff65b3a42a9"
+      ]
+    ]
+  },
+  {
+    "id": "34341ff65b3a42a9",
+    "type": "function",
+    "name": "Connect announcements",
+    "func": "var msgs = [];\nfor (var i = 1; i <= 20; i++) {\n    var roomStr = 'r' + String(i).padStart(3,'0');\n    var device  = 'b01-f04-' + roomStr;\n    var profile = (i <= 10) ? 'MQTT_Room_Device' : 'CoAP_Room_Device';\n    msgs.push({ topic: 'v1/gateway/connect',\n                payload: JSON.stringify({ device: device, type: profile }) });\n}\nreturn [msgs];",
+    "outputs": 1,
+    "x": 360,
+    "y": 220,
+    "z": "51ce38e5ef174a62",
+    "wires": [
+      [
+        "ad5259e19a284f4b"
+      ]
+    ]
+  },
+  {
+    "id": "ad5259e19a284f4b",
+    "type": "mqtt out",
+    "name": "TB Connect",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "f5752e23d9ef40c4",
+    "x": 600,
+    "y": 220,
+    "z": "51ce38e5ef174a62",
+    "wires": []
+  },
+  {
+    "id": "4631185f6f4f43fb",
     "type": "tab",
     "label": "Floor 04 CoAP Gateway",
     "disabled": false,
     "info": ""
   },
   {
-    "id": "c7089fd68c594c58",
+    "id": "b4d559b60e954225",
     "type": "inject",
     "name": "Start CoAP Observe",
     "props": [
@@ -133,15 +186,15 @@
     "payloadType": "date",
     "x": 120,
     "y": 200,
-    "z": "c12435e97c7147f3",
+    "z": "4631185f6f4f43fb",
     "wires": [
       [
-        "ba55796fdf754533"
+        "11cda117b9d84210"
       ]
     ]
   },
   {
-    "id": "ba55796fdf754533",
+    "id": "11cda117b9d84210",
     "type": "function",
     "name": "CoAP Observe f04 (rooms 011-020)",
     "func": "// CoAP Observe \u2192 ThingsBoard \u2014 Floor 04 (rooms 011-020)\n// Triggered once on startup; node.send() fires for every CoAP notification.\n// 'coap' is injected via the node's libs declaration (functionExternalModules: true).\n\nvar rooms = [\n    {pathname:'/f04/r411/telemetry', device:'b01-f04-r011'},\n    {pathname:'/f04/r412/telemetry', device:'b01-f04-r012'},\n    {pathname:'/f04/r413/telemetry', device:'b01-f04-r013'},\n    {pathname:'/f04/r414/telemetry', device:'b01-f04-r014'},\n    {pathname:'/f04/r415/telemetry', device:'b01-f04-r015'},\n    {pathname:'/f04/r416/telemetry', device:'b01-f04-r016'},\n    {pathname:'/f04/r417/telemetry', device:'b01-f04-r017'},\n    {pathname:'/f04/r418/telemetry', device:'b01-f04-r018'},\n    {pathname:'/f04/r419/telemetry', device:'b01-f04-r019'},\n    {pathname:'/f04/r420/telemetry', device:'b01-f04-r020'}\n];\n\nrooms.forEach(function(room) {\n    var req = coap.request({\n        hostname: 'simulator',\n        port: 5683,\n        pathname: room.pathname,\n        method: 'GET',\n        observe: true\n    });\n    req.on('response', function(res) {\n        res.on('data', function(data) {\n            try {\n                var d = JSON.parse(data.toString());\n                var ts = d.timestamp ? d.timestamp * 1000 : Date.now();\n                node.send({\n                    topic: 'v1/gateway/telemetry',\n                    payload: JSON.stringify({\n                        [room.device]: [{\n                            ts: ts,\n                            values: {\n                                temperature:     d.temperature,\n                                humidity:        d.humidity,\n                                occupancy:       d.occupancy,\n                                light_level:     d.light_level,\n                                hvac_mode:       d.hvac_mode,\n                                lighting_dimmer: d.lighting_dimmer,\n                                target_temp:     d.target_temp,\n                                fault:           d.fault\n                            }\n                        }]\n                    })\n                });\n            } catch(e) {}\n        });\n    });\n    req.on('error', function(e) {\n        node.error('CoAP ' + room.device + ': ' + e.message);\n    });\n    req.end();\n});\nreturn null;",
@@ -154,24 +207,98 @@
     "outputs": 1,
     "x": 380,
     "y": 200,
-    "z": "c12435e97c7147f3",
+    "z": "4631185f6f4f43fb",
     "wires": [
       [
-        "8d279a120dce42cf"
+        "6927a57488a842ce"
       ]
     ]
   },
   {
-    "id": "8d279a120dce42cf",
+    "id": "6927a57488a842ce",
     "type": "mqtt out",
     "name": "TB Telemetry (CoAP)",
     "topic": "",
     "qos": "0",
     "retain": "false",
-    "broker": "7e228f9d0bbc4382",
+    "broker": "f5752e23d9ef40c4",
     "x": 620,
     "y": 200,
-    "z": "c12435e97c7147f3",
+    "z": "4631185f6f4f43fb",
+    "wires": []
+  },
+  {
+    "id": "4815489fbb144ffe",
+    "type": "tab",
+    "label": "Floor 04 Downstream",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "3bee838e6f5c4f81",
+    "type": "mqtt in",
+    "name": "TB RPC In",
+    "topic": "v1/gateway/rpc",
+    "qos": "1",
+    "datatype": "auto",
+    "broker": "f5752e23d9ef40c4",
+    "x": 120,
+    "y": 200,
+    "z": "4815489fbb144ffe",
+    "wires": [
+      [
+        "4b93e1f7aaf74f97"
+      ]
+    ]
+  },
+  {
+    "id": "4b93e1f7aaf74f97",
+    "type": "function",
+    "name": "Route RPC f04",
+    "func": "// Downstream: ThingsBoard RPC \u2192 device command (floor 04)\n// TB publishes: {\"device\":\"b01-fXX-rYYY\",\"id\":N,\"data\":{\"method\":\"...\",\"params\":{...}}}\n// Output 1 \u2192 HiveMQ cmd topic  (MQTT rooms r001-r010)\n// Output 2 \u2192 TB rpc/response   (all rooms, after command dispatched)\nvar rpc;\ntry { rpc = JSON.parse(msg.payload); } catch(e) { return null; }\n\nvar device = rpc.device;\nif (!device) return null;\nvar parts = device.split('-');   // [\"b01\",\"f01\",\"r009\"]\nif (parts.length < 3) return null;\n\nvar floorNum    = parseInt(parts[1].slice(1));    // 1\nvar roomOnFloor = parseInt(parts[2].slice(1));    // 9\nvar roomNumber  = floorNum * 100 + roomOnFloor;   // 109\nvar floorPad    = String(floorNum).padStart(2,'0');\nvar roomPad     = String(roomNumber).padStart(3,'0');\n\nvar params  = (rpc.data && rpc.data.params) ? rpc.data.params : {};\nvar cmdJson = JSON.stringify(params);\nvar rpcId   = (rpc.id !== undefined) ? rpc.id : 0;\n\nfunction makeResp(success, errMsg) {\n    var d = { success: success };\n    if (errMsg) d.error = errMsg;\n    return { topic: 'v1/gateway/rpc/response',\n              payload: JSON.stringify({ device: device, id: rpcId, data: d }) };\n}\n\nif (roomOnFloor >= 1 && roomOnFloor <= 10) {\n    // MQTT room \u2014 publish command to HiveMQ\n    var cmdTopic = 'campus/b01/f' + floorPad + '/r' + roomPad + '/cmd';\n    node.send([{ topic: cmdTopic, payload: cmdJson }, makeResp(true)]);\n} else {\n    // CoAP room \u2014 CON PUT to simulator\n    var path = '/f' + floorPad + '/r' + roomPad + '/actuators/hvac';\n    var req = coap.request({\n        hostname: 'simulator',\n        port: 5683,\n        pathname: path,\n        method: 'PUT',\n        confirmable: true\n    });\n    req.on('response', function(res) {\n        node.send([null, makeResp(res.code === '2.04')]);\n    });\n    req.on('error', function(e) {\n        node.error('CoAP PUT ' + device + ': ' + e.message);\n        node.send([null, makeResp(false, e.message)]);\n    });\n    req.write(Buffer.from(cmdJson));\n    req.end();\n}\nreturn null;",
+    "libs": [
+      {
+        "var": "coap",
+        "module": "coap"
+      }
+    ],
+    "outputs": 2,
+    "x": 360,
+    "y": 200,
+    "z": "4815489fbb144ffe",
+    "wires": [
+      [
+        "4d607d3808fb4b9c"
+      ],
+      [
+        "6e7dcc2ea5be42e2"
+      ]
+    ]
+  },
+  {
+    "id": "4d607d3808fb4b9c",
+    "type": "mqtt out",
+    "name": "HiveMQ CMD",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "f6fa9ba4221f41e4",
+    "x": 600,
+    "y": 160,
+    "z": "4815489fbb144ffe",
+    "wires": []
+  },
+  {
+    "id": "6e7dcc2ea5be42e2",
+    "type": "mqtt out",
+    "name": "TB RPC Response",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "f5752e23d9ef40c4",
+    "x": 600,
+    "y": 240,
+    "z": "4815489fbb144ffe",
     "wires": []
   }
 ]

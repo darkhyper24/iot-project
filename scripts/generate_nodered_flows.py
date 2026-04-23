@@ -100,6 +100,9 @@ def _build_flow(floor: int, gw_token: str, observer_password: str) -> tuple[list
     out_telemetry_id = _nid()
     out_attr_id = _nid()
     tab_id = _nid()
+    inject_connect_id = _nid()
+    func_connect_id = _nid()
+    out_connect_id = _nid()
 
     func_code = f"""
 // topic: campus/b01/f{floor_str}/rNNN/telemetry|heartbeat|lwt
@@ -226,10 +229,55 @@ return null;
             "x": 600, "y": 140, "z": tab_id,
             "wires": [],
         },
+
+        # Inject once on startup — announce all 20 devices as connected to ThingsBoard
+        {
+            "id": inject_connect_id, "type": "inject",
+            "name": "Announce devices connected",
+            "props": [{"p": "payload"}],
+            "repeat": "", "crontab": "",
+            "once": True, "onceDelay": 5,
+            "topic": "", "payload": "", "payloadType": "date",
+            "x": 120, "y": 220, "z": tab_id,
+            "wires": [[func_connect_id]],
+        },
+
+        # Function — build v1/gateway/connect messages for all 20 rooms on this floor
+        {
+            "id": func_connect_id, "type": "function",
+            "name": "Connect announcements",
+            "func": "\n".join([
+                "var msgs = [];",
+                f"for (var i = 1; i <= {ROOMS_PER_FLOOR}; i++) {{",
+                "    var roomStr = 'r' + String(i).padStart(3,'0');",
+                f"    var device  = 'b01-f{floor_str}-' + roomStr;",
+                f"    var profile = (i <= {MQTT_ROOMS_PER_FLOOR}) ? 'MQTT_Room_Device' : 'CoAP_Room_Device';",
+                "    msgs.push({ topic: 'v1/gateway/connect',",
+                "                payload: JSON.stringify({ device: device, type: profile }) });",
+                "}",
+                "return [msgs];",
+            ]),
+            "outputs": 1,
+            "x": 360, "y": 220, "z": tab_id,
+            "wires": [[out_connect_id]],
+        },
+
+        # MQTT Out — publish connect announcements to ThingsBoard
+        {
+            "id": out_connect_id, "type": "mqtt out",
+            "name": "TB Connect",
+            "topic": "", "qos": "1", "retain": "false",
+            "broker": tb_broker_id,
+            "x": 600, "y": 220, "z": tab_id,
+            "wires": [],
+        },
     ]
 
     # CoAP tab — one Observe node per CoAP room (rooms 11-20 on this floor)
     coap_nodes = _build_coap_tab(floor, floor_str, tb_broker_id)
+
+    # Downstream tab — ThingsBoard RPC → MQTT cmd (rooms 01-10) or CoAP PUT (rooms 11-20)
+    downstream_nodes = _build_downstream_tab(floor_str, hivemq_broker_id, tb_broker_id)
 
     # Credentials map for flows_cred.json (plain JSON, credentialSecret: false)
     credentials = {
@@ -237,7 +285,7 @@ return null;
         tb_broker_id: {"user": gw_token, "password": ""},
     }
 
-    return nodes + coap_nodes, credentials
+    return nodes + coap_nodes + downstream_nodes, credentials
 
 
 COAP_SIMULATOR_HOST = "simulator"
@@ -362,6 +410,135 @@ return null;""".strip()
             "topic": "", "qos": "0", "retain": "false",
             "broker": tb_broker_id,
             "x": 620, "y": 200, "z": tab_id,
+            "wires": [],
+        },
+    ]
+
+
+MQTT_TOPIC_PREFIX = "campus/b01"
+
+
+def _build_downstream_tab(
+    floor_str: str, hivemq_broker_id: str, tb_broker_id: str
+) -> list[dict]:
+    """
+    Downstream tab: ThingsBoard RPC → device command.
+
+    ThingsBoard publishes to v1/gateway/rpc:
+      {"device": "b01-fXX-rYYY", "id": <rpcId>, "data": {"method": "...", "params": {...}}}
+
+    For MQTT rooms (room_on_floor 01-10):
+      Publishes params JSON to HiveMQ: campus/b01/fXX/rNNN/cmd
+      (NNN = floor*100 + room_on_floor, e.g. floor 1 room 9 → r109)
+
+    For CoAP rooms (room_on_floor 11-20):
+      CON PUT to simulator:5683/fXX/rNNN/actuators/hvac
+
+    Sends RPC response back to ThingsBoard on v1/gateway/rpc/response.
+    """
+    tab_id       = _nid()
+    mqtt_in_id   = _nid()
+    func_id      = _nid()
+    hivemq_out_id = _nid()
+    tb_resp_id   = _nid()
+
+    func_code = f"""// Downstream: ThingsBoard RPC → device command (floor {floor_str})
+// TB publishes: {{"device":"b01-fXX-rYYY","id":N,"data":{{"method":"...","params":{{...}}}}}}
+// Output 1 → HiveMQ cmd topic  (MQTT rooms r001-r010)
+// Output 2 → TB rpc/response   (all rooms, after command dispatched)
+var rpc;
+try {{ rpc = JSON.parse(msg.payload); }} catch(e) {{ return null; }}
+
+var device = rpc.device;
+if (!device) return null;
+var parts = device.split('-');   // ["b01","f01","r009"]
+if (parts.length < 3) return null;
+
+var floorNum    = parseInt(parts[1].slice(1));    // 1
+var roomOnFloor = parseInt(parts[2].slice(1));    // 9
+var roomNumber  = floorNum * 100 + roomOnFloor;   // 109
+var floorPad    = String(floorNum).padStart(2,'0');
+var roomPad     = String(roomNumber).padStart(3,'0');
+
+var params  = (rpc.data && rpc.data.params) ? rpc.data.params : {{}};
+var cmdJson = JSON.stringify(params);
+var rpcId   = (rpc.id !== undefined) ? rpc.id : 0;
+
+function makeResp(success, errMsg) {{
+    var d = {{ success: success }};
+    if (errMsg) d.error = errMsg;
+    return {{ topic: 'v1/gateway/rpc/response',
+              payload: JSON.stringify({{ device: device, id: rpcId, data: d }}) }};
+}}
+
+if (roomOnFloor >= 1 && roomOnFloor <= {MQTT_ROOMS_PER_FLOOR}) {{
+    // MQTT room — publish command to HiveMQ
+    var cmdTopic = '{MQTT_TOPIC_PREFIX}/f' + floorPad + '/r' + roomPad + '/cmd';
+    node.send([{{ topic: cmdTopic, payload: cmdJson }}, makeResp(true)]);
+}} else {{
+    // CoAP room — CON PUT to simulator
+    var path = '/f' + floorPad + '/r' + roomPad + '/actuators/hvac';
+    var req = coap.request({{
+        hostname: '{COAP_SIMULATOR_HOST}',
+        port: {COAP_PLAIN_PORT},
+        pathname: path,
+        method: 'PUT',
+        confirmable: true
+    }});
+    req.on('response', function(res) {{
+        node.send([null, makeResp(res.code === '2.04')]);
+    }});
+    req.on('error', function(e) {{
+        node.error('CoAP PUT ' + device + ': ' + e.message);
+        node.send([null, makeResp(false, e.message)]);
+    }});
+    req.write(Buffer.from(cmdJson));
+    req.end();
+}}
+return null;""".strip()
+
+    return [
+        {"id": tab_id, "type": "tab", "label": f"Floor {floor_str} Downstream", "disabled": False, "info": ""},
+
+        # MQTT In — subscribe to ThingsBoard gateway RPC topic
+        {
+            "id": mqtt_in_id, "type": "mqtt in",
+            "name": "TB RPC In",
+            "topic": "v1/gateway/rpc", "qos": "1",
+            "datatype": "auto",
+            "broker": tb_broker_id,
+            "x": 120, "y": 200, "z": tab_id,
+            "wires": [[func_id]],
+        },
+
+        # Function — route to MQTT cmd or CoAP PUT; builds RPC response
+        {
+            "id": func_id, "type": "function",
+            "name": f"Route RPC f{floor_str}",
+            "func": func_code,
+            "libs": [{"var": "coap", "module": "coap"}],
+            "outputs": 2,
+            "x": 360, "y": 200, "z": tab_id,
+            "wires": [[hivemq_out_id], [tb_resp_id]],
+        },
+
+        # MQTT Out — HiveMQ command topic (MQTT rooms)
+        {
+            "id": hivemq_out_id, "type": "mqtt out",
+            "name": "HiveMQ CMD",
+            "topic": "", "qos": "1", "retain": "false",
+            "broker": hivemq_broker_id,
+            "x": 600, "y": 160, "z": tab_id,
+            "wires": [],
+        },
+
+        # MQTT Out — ThingsBoard RPC response
+        {
+            "id": tb_resp_id, "type": "mqtt out",
+            "name": "TB RPC Response",
+            "topic": "", "qos": "1", "retain": "false",
+            "broker": tb_broker_id,
+            "x": 600, "y": 240, "z": tab_id,
             "wires": [],
         },
     ]
