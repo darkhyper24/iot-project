@@ -16,4 +16,4 @@ RUN curl -fsSL -o /tmp/rbac.zip \
 COPY config/hivemq/extensions/hivemq-file-rbac-extension/conf/config.xml \
     /opt/hivemq/extensions/hivemq-file-rbac-extension/conf/config.xml
 
-USER hivemq
+USER 10000

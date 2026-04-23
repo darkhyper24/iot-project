@@ -4,6 +4,15 @@ from __future__ import annotations
 
 import json
 import logging
+import socket
+
+
+def _outbound_ip() -> str:
+    """Return the container's actual network IP. tinydtls rejects 0.0.0.0."""
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("10.254.254.254", 1))
+        return s.getsockname()[0]
+
 
 from aiocoap import resource
 from aiocoap.credentials import CredentialsMap, DTLS
@@ -133,7 +142,8 @@ class CampusCoAPSite:
         host = coap_cfg.get("bind_host", "0.0.0.0")
         plain_port = int(coap_cfg.get("bind_port", 5683))
         dtls = bool(coap_cfg.get("dtls_enabled"))
-        dtls_host = coap_cfg.get("dtls_bind_host", host)
+        _cfg_dtls_host = coap_cfg.get("dtls_bind_host", "")
+        dtls_host = _cfg_dtls_host if _cfg_dtls_host not in ("", "0.0.0.0", "::") else _outbound_ip()
         dtls_port = int(coap_cfg.get("dtls_bind_port", 5684))
 
         if dtls:
