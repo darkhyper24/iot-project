@@ -16,4 +16,7 @@ RUN curl -fsSL -o /tmp/rbac.zip \
 COPY config/hivemq/extensions/hivemq-file-rbac-extension/conf/config.xml \
     /opt/hivemq/extensions/hivemq-file-rbac-extension/conf/config.xml
 
-USER hivemq
+# Upstream image uses numeric user 10000 (no "hivemq" name in /etc/passwd).
+RUN chown -R 10000:0 /opt/hivemq/extensions/hivemq-file-rbac-extension
+
+USER 10000

@@ -5,6 +5,7 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
 ## Where To Start
 
 - Run the project: [docker-compose.yaml](./docker-compose.yaml)
+- Operations and security runbook: [docs/RUNBOOK.md](./docs/RUNBOOK.md)
 - Main simulator entrypoint: [simulator/main.py](./simulator/main.py)
 - Manual command reference: [DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md)
 - Step-by-step manual test flow: [MANUAL_TESTING.md](./MANUAL_TESTING.md)
@@ -26,9 +27,9 @@ This repository contains a Dockerized campus IoT simulator for a 200-room buildi
   Local stack:
   - `postgres` — simulator database (host port **5433**)
   - `postgres-tb` — ThingsBoard database (internal only)
-  - `hivemq` — HiveMQ Community Edition MQTT (**1883**)
+  - `hivemq` — HiveMQ Community Edition MQTT (**1883** plain, **8883** TLS)
   - `thingsboard` — ThingsBoard CE UI (**9090** → container 8080)
-  - `simulator` — campus engine (MQTT to HiveMQ; CoAP UDP **5693** → 5683)
+  - `simulator` — campus engine (MQTT to HiveMQ; CoAP DTLS UDP **5694** → 5684)
   - `gateway-floor-01` … `gateway-floor-10` — Node-RED (host **1880–1882**, **1890–1896**)
 
 - [requirements.txt](./requirements.txt)

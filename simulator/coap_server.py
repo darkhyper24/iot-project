@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import socket
 
 from aiocoap import resource
 from aiocoap.credentials import CredentialsMap, DTLS
@@ -18,6 +19,26 @@ from simulator.engine.commands import CommandHandler
 from simulator.models.room import Room
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_tinydtls_bind_host(host: str) -> str:
+    """aiocoap tinydtls_server uses simplesocketserver, which rejects 0.0.0.0/::.
+
+    For Docker, resolve "any" to the container's primary IPv4 so published UDP
+    ports still reach the socket.
+    """
+    if host and host not in ("0.0.0.0", "::", ""):
+        return host
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("10.255.255.255", 1))
+        resolved = s.getsockname()[0]
+    except OSError:
+        resolved = "127.0.0.1"
+    finally:
+        s.close()
+    logger.info("CoAP DTLS bind_host %r resolved to %r (tinydtls_server requires a concrete address)", host, resolved)
+    return resolved
 
 
 class TelemetryResource(resource.ObservableResource):
@@ -133,7 +154,7 @@ class CampusCoAPSite:
         host = coap_cfg.get("bind_host", "0.0.0.0")
         plain_port = int(coap_cfg.get("bind_port", 5683))
         dtls = bool(coap_cfg.get("dtls_enabled"))
-        dtls_host = coap_cfg.get("dtls_bind_host", host)
+        dtls_host_raw = coap_cfg.get("dtls_bind_host", host)
         dtls_port = int(coap_cfg.get("dtls_bind_port", 5684))
 
         if dtls:
@@ -142,6 +163,7 @@ class CampusCoAPSite:
                 raise RuntimeError(
                     "CoAP DTLS is enabled but no PSK entries loaded. Run: python scripts/generate_campus_secrets.py",
                 )
+            dtls_host = _resolve_tinydtls_bind_host(str(dtls_host_raw or ""))
             cred = _dtls_credentials_from_psk_map(psk_map)
             self._context = await Context.create_server_context(
                 self.root,
