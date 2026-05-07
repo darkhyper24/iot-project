@@ -279,13 +279,29 @@ return null;
     # Downstream tab — ThingsBoard RPC → MQTT cmd (rooms 01-10) or CoAP PUT (rooms 11-20)
     downstream_nodes = _build_downstream_tab(floor_str, hivemq_broker_id, tb_broker_id)
 
+    # Phase 3 — reported client attributes branch (HiveMQ attrs/reported → TB Gateway).
+    reported_nodes = _build_reported_attrs_tab(floor, floor_str, hivemq_broker_id, tb_broker_id)
+
+    # Phase 3 — desired-state branch (TB shared-attribute push → HiveMQ attrs/desired).
+    desired_nodes = _build_desired_state_tab(floor_str, hivemq_broker_id, tb_broker_id)
+
+    # Phase 3 B.1 — 30 s rolling-average of floor temperature → TB Floor device.
+    floor_avg_nodes = _build_floor_avg_tab(floor_str, hivemq_broker_id, tb_broker_id)
+
+    # Phase 3 B.5 — OTA tamper events → ThingsBoard security telemetry.
+    tamper_nodes = _build_tamper_tab(floor_str, hivemq_broker_id, tb_broker_id) if floor == 1 else []
+
     # Credentials map for flows_cred.json (plain JSON, credentialSecret: false)
     credentials = {
         hivemq_broker_id: {"user": OBSERVER_USER, "password": observer_password},
         tb_broker_id: {"user": gw_token, "password": ""},
     }
 
-    return nodes + coap_nodes + downstream_nodes, credentials
+    return (
+        nodes + coap_nodes + downstream_nodes + reported_nodes
+        + desired_nodes + floor_avg_nodes + tamper_nodes,
+        credentials,
+    )
 
 
 COAP_SIMULATOR_HOST = "simulator"
@@ -346,6 +362,11 @@ rooms.forEach(function(room) {{
             try {{
                 var d = JSON.parse(data.toString());
                 var ts = d.timestamp ? d.timestamp * 1000 : Date.now();
+                if (typeof d.temperature === 'number') {{
+                    var bag = global.get('floor{floor_str}_temps') || {{}};
+                    bag[room.pathname.split('/')[2]] = d.temperature;
+                    global.set('floor{floor_str}_temps', bag);
+                }}
                 node.send({{
                     topic: 'v1/gateway/telemetry',
                     payload: JSON.stringify({{
@@ -544,6 +565,395 @@ return null;""".strip()
     ]
 
 
+def _build_reported_attrs_tab(
+    floor: int, floor_str: str, hivemq_broker_id: str, tb_broker_id: str,
+) -> list[dict]:
+    """Phase 3 B.2 — forward simulator-reporter client attrs to TB Gateway.
+
+    Subscribes to ``campus/b01/fXX/+/attrs/reported`` on HiveMQ; payload is the
+    reported snapshot dict published by the central twin reporter. Translates
+    the global MQTT room number to the TB-local device name (r0NN) and posts
+    to ``v1/gateway/attributes``.
+    """
+    tab_id     = _nid()
+    mqtt_in_id = _nid()
+    func_id    = _nid()
+    out_id     = _nid()
+
+    func_code = f"""// HiveMQ attrs/reported → TB Gateway attributes (floor {floor_str})
+// Topic: campus/b01/f{floor_str}/rNNN/attrs/reported  (NNN = floor*100 + room_on_floor)
+var parts = msg.topic.split('/');
+if (parts.length < 6) return null;
+if (parts[4] !== 'attrs' || parts[5] !== 'reported') return null;
+
+var rawNum      = parseInt(parts[3].slice(1));
+var roomOnFloor = rawNum - {floor} * 100;
+if (!(roomOnFloor >= 1 && roomOnFloor <= 20)) return null;
+var roomStr     = 'r' + String(roomOnFloor).padStart(3, '0');
+var device      = 'b01-f{floor_str}-' + roomStr;
+
+var data;
+try {{
+    data = (typeof msg.payload === 'string') ? JSON.parse(msg.payload) : msg.payload;
+}} catch(e) {{ return null; }}
+if (!data || typeof data !== 'object') return null;
+
+msg.payload = JSON.stringify({{ [device]: data }});
+msg.topic   = 'v1/gateway/attributes';
+return msg;""".strip()
+
+    return [
+        {"id": tab_id, "type": "tab", "label": f"Floor {floor_str} Attrs Reported",
+         "disabled": False, "info": ""},
+        {
+            "id": mqtt_in_id, "type": "mqtt in",
+            "name": f"HiveMQ f{floor_str} reported",
+            "topic": f"campus/b01/f{floor_str}/+/attrs/reported", "qos": "0",
+            "datatype": "auto",
+            "broker": hivemq_broker_id,
+            "x": 130, "y": 200, "z": tab_id,
+            "wires": [[func_id]],
+        },
+        {
+            "id": func_id, "type": "function",
+            "name": "Reported → TB Gateway",
+            "func": func_code,
+            "outputs": 1,
+            "x": 360, "y": 200, "z": tab_id,
+            "wires": [[out_id]],
+        },
+        {
+            "id": out_id, "type": "mqtt out",
+            "name": "TB Attrs (reported)",
+            "topic": "", "qos": "0", "retain": "false",
+            "broker": tb_broker_id,
+            "x": 620, "y": 200, "z": tab_id,
+            "wires": [],
+        },
+    ]
+
+
+def _build_desired_state_tab(
+    floor_str: str, hivemq_broker_id: str, tb_broker_id: str,
+) -> list[dict]:
+    """Phase 3 B.3 — TB shared-attribute push → HiveMQ attrs/desired.
+
+    Subscribes to ``v1/gateway/attributes`` on TB. Defensively parses inbound
+    shared-attribute updates (shape ``{"device":"...","data":{...}}``) and
+    republishes to ``campus/b01/f##/r###/attrs/desired`` so the simulator's
+    central desired-state subscriber picks them up.
+
+    Self-published gateway client-attribute messages reach this same topic;
+    the parser ignores them (no ``data`` map / no ``device`` string).
+    """
+    tab_id     = _nid()
+    mqtt_in_id = _nid()
+    resp_in_id = _nid()
+    func_id    = _nid()
+    out_id     = _nid()
+    request_inject_id = _nid()
+    request_func_id = _nid()
+    request_out_id = _nid()
+
+    func_code = """// TB shared-attribute push → HiveMQ attrs/desired
+// Inbound push shape: { "device": "b01-fXX-rYYY", "data": { key: value, ... } }
+// Request response shape is accepted defensively if it also carries device + data.
+// Outbound HiveMQ: campus/b01/fXX/rNNN/attrs/desired   (NNN = floor*100 + room_on_floor)
+var data;
+try { data = (typeof msg.payload === 'string') ? JSON.parse(msg.payload) : msg.payload; }
+catch(e) { return null; }
+if (!data || typeof data !== 'object') return null;
+
+// Defensive: ignore gateway-self publishes (no `data` key, or no `device` field).
+if (typeof data.device !== 'string') return null;
+if (!data.data || typeof data.data !== 'object') return null;
+
+var parts = data.device.split('-');                       // ["b01","f01","r009"]
+if (parts.length < 3) return null;
+var floorNum    = parseInt(parts[1].slice(1));
+var roomOnFloor = parseInt(parts[2].slice(1));
+if (isNaN(floorNum) || isNaN(roomOnFloor)) return null;
+
+var roomNumber  = floorNum * 100 + roomOnFloor;
+var floorPad    = String(floorNum).padStart(2,'0');
+var roomPad     = String(roomNumber).padStart(3,'0');
+
+msg.topic   = 'campus/b01/f' + floorPad + '/r' + roomPad + '/attrs/desired';
+msg.payload = JSON.stringify(data.data);
+return msg;""".strip()
+
+    request_code = f"""// Request shared attrs for all 20 floor devices on gateway startup.
+// TB Gateway MQTT API: v1/gateway/attributes/request
+var keys = [
+    'hvac_mode_desired',
+    'lighting_dimmer_desired',
+    'target_temp_desired',
+    'target_version',
+    'alpha',
+    'beta'
+];
+var msgs = [];
+for (var i = 1; i <= {ROOMS_PER_FLOOR}; i++) {{
+    var device = 'b01-f{floor_str}-r' + String(i).padStart(3, '0');
+    msgs.push({{
+        topic: 'v1/gateway/attributes/request',
+        payload: JSON.stringify({{
+            id: ({int(floor_str)} * 1000) + i,
+            device: device,
+            shared: keys
+        }})
+    }});
+}}
+return [msgs];""".strip()
+
+    return [
+        {"id": tab_id, "type": "tab", "label": f"Floor {floor_str} Desired State",
+         "disabled": False, "info": ""},
+        {
+            "id": mqtt_in_id, "type": "mqtt in",
+            "name": "TB attrs (shared push)",
+            "topic": "v1/gateway/attributes", "qos": "1",
+            "datatype": "auto",
+            "broker": tb_broker_id,
+            "x": 130, "y": 200, "z": tab_id,
+            "wires": [[func_id]],
+        },
+        {
+            "id": resp_in_id, "type": "mqtt in",
+            "name": "TB attrs response",
+            "topic": "v1/gateway/attributes/response", "qos": "1",
+            "datatype": "auto",
+            "broker": tb_broker_id,
+            "x": 130, "y": 260, "z": tab_id,
+            "wires": [[func_id]],
+        },
+        {
+            "id": func_id, "type": "function",
+            "name": "Shared → attrs/desired",
+            "func": func_code,
+            "outputs": 1,
+            "x": 380, "y": 230, "z": tab_id,
+            "wires": [[out_id]],
+        },
+        {
+            "id": out_id, "type": "mqtt out",
+            "name": "HiveMQ attrs/desired",
+            "topic": "", "qos": "1", "retain": "false",
+            "broker": hivemq_broker_id,
+            "x": 650, "y": 230, "z": tab_id,
+            "wires": [],
+        },
+        {
+            "id": request_inject_id, "type": "inject",
+            "name": "Request shared attrs",
+            "props": [{"p": "payload"}],
+            "repeat": "", "crontab": "",
+            "once": True, "onceDelay": 8,
+            "topic": "", "payload": "", "payloadType": "date",
+            "x": 130, "y": 340, "z": tab_id,
+            "wires": [[request_func_id]],
+        },
+        {
+            "id": request_func_id, "type": "function",
+            "name": "Build attr requests",
+            "func": request_code,
+            "outputs": 1,
+            "x": 380, "y": 340, "z": tab_id,
+            "wires": [[request_out_id]],
+        },
+        {
+            "id": request_out_id, "type": "mqtt out",
+            "name": "TB Attr Requests",
+            "topic": "", "qos": "1", "retain": "false",
+            "broker": tb_broker_id,
+            "x": 650, "y": 340, "z": tab_id,
+            "wires": [],
+        },
+    ]
+
+
+def _build_floor_avg_tab(
+    floor_str: str, hivemq_broker_id: str, tb_broker_id: str,
+) -> list[dict]:
+    """Phase 3 B.1 — 30 s rolling-average floor temperature → TB Floor aggregate device.
+
+    Subscribes to all telemetry on the floor, accumulates per-room latest
+    temperatures in a JS Map, and every 30 s emits a single TB Gateway
+    telemetry message for device ``b01-fXX-floor``. The seeder links that
+    aggregate device to the Floor asset so the dashboard can visualize the
+    Floor-level twin state.
+    """
+    tab_id    = _nid()
+    mqtt_in   = _nid()
+    fn_aggr   = _nid()
+    inj_tick  = _nid()
+    fn_emit   = _nid()
+    out_id    = _nid()
+
+    aggr_code = f"""// Per-room latest temperature collector for floor {floor_str}
+var parts = msg.topic.split('/');
+if (parts.length < 5 || parts[4] !== 'telemetry') return null;
+
+var data;
+try {{ data = (typeof msg.payload === 'string') ? JSON.parse(msg.payload) : msg.payload; }}
+catch(e) {{ return null; }}
+if (!data || typeof data.temperature !== 'number') return null;
+
+var bag = global.get('floor{floor_str}_temps') || {{}};
+bag[parts[3]] = data.temperature;
+global.set('floor{floor_str}_temps', bag);
+return null;""".strip()
+
+    emit_code = f"""// Emit 30 s floor-average telemetry to TB
+var bag = global.get('floor{floor_str}_temps') || {{}};
+var keys = Object.keys(bag);
+if (keys.length === 0) return null;
+var sum = 0;
+for (var i = 0; i < keys.length; i++) sum += bag[keys[i]];
+var avg = sum / keys.length;
+var device = 'b01-f{floor_str}-floor';
+msg.topic   = 'v1/gateway/telemetry';
+msg.payload = JSON.stringify({{
+    [device]: [{{ ts: Date.now(), values: {{
+        avg_temperature: Number(avg.toFixed(2)),
+        room_sample_count: keys.length
+    }} }}]
+}});
+return msg;""".strip()
+
+    return [
+        {"id": tab_id, "type": "tab", "label": f"Floor {floor_str} Avg Temp",
+         "disabled": False, "info": ""},
+        {
+            "id": mqtt_in, "type": "mqtt in",
+            "name": f"HiveMQ f{floor_str} telemetry",
+            "topic": f"campus/b01/f{floor_str}/+/telemetry", "qos": "0",
+            "datatype": "auto",
+            "broker": hivemq_broker_id,
+            "x": 130, "y": 200, "z": tab_id,
+            "wires": [[fn_aggr]],
+        },
+        {
+            "id": fn_aggr, "type": "function",
+            "name": "Collect latest temps",
+            "func": aggr_code,
+            "outputs": 1,
+            "x": 360, "y": 200, "z": tab_id,
+            "wires": [[]],
+        },
+        {
+            "id": inj_tick, "type": "inject",
+            "name": "every 30 s",
+            "props": [{"p": "payload"}],
+            "repeat": "30", "crontab": "",
+            "once": True, "onceDelay": 35,
+            "topic": "", "payload": "", "payloadType": "date",
+            "x": 130, "y": 280, "z": tab_id,
+            "wires": [[fn_emit]],
+        },
+        {
+            "id": fn_emit, "type": "function",
+            "name": "Emit floor avg",
+            "func": emit_code,
+            "outputs": 1,
+            "x": 360, "y": 280, "z": tab_id,
+            "wires": [[out_id]],
+        },
+        {
+            "id": out_id, "type": "mqtt out",
+            "name": "TB Telemetry (floor avg)",
+            "topic": "", "qos": "0", "retain": "false",
+            "broker": tb_broker_id,
+            "x": 620, "y": 280, "z": tab_id,
+            "wires": [],
+        },
+    ]
+
+
+def _build_tamper_tab(
+    floor_str: str, hivemq_broker_id: str, tb_broker_id: str,
+) -> list[dict]:
+    """Phase 3 B.5 — relay OTA tamper events into ThingsBoard telemetry.
+
+    Every floor gateway can see the shared tamper topic through the observer
+    account. The security device is provisioned by the seeder as ``b01-security``.
+    """
+    tab_id = _nid()
+    mqtt_in = _nid()
+    func_id = _nid()
+    out_id = _nid()
+
+    func_code = """// OTA tamper event → TB security telemetry
+var data;
+try { data = (typeof msg.payload === 'string') ? JSON.parse(msg.payload) : msg.payload; }
+catch(e) { return null; }
+if (!data || typeof data !== 'object') return null;
+
+msg.topic = 'v1/gateway/telemetry';
+msg.payload = JSON.stringify({
+    'b01-security': [{
+        ts: Date.now(),
+        values: {
+            ota_tamper: true,
+            source_topic: data.source_topic || msg.topic,
+            actual_sha256: data.actual_sha256 || '',
+            expected_sha256: data.expected_sha256 || '',
+            client_id: data.client_id || '',
+            tamper_ts: data.ts || Math.floor(Date.now() / 1000)
+        }
+    }]
+});
+return msg;""".strip()
+
+    return [
+        {"id": tab_id, "type": "tab", "label": f"Floor {floor_str} Tamper Relay",
+         "disabled": False, "info": ""},
+        {
+            "id": mqtt_in, "type": "mqtt in",
+            "name": "HiveMQ OTA tamper",
+            "topic": "campus/b01/security/tamper", "qos": "1",
+            "datatype": "auto",
+            "broker": hivemq_broker_id,
+            "x": 130, "y": 220, "z": tab_id,
+            "wires": [[func_id]],
+        },
+        {
+            "id": func_id, "type": "function",
+            "name": "Tamper → TB telemetry",
+            "func": func_code,
+            "outputs": 1,
+            "x": 380, "y": 220, "z": tab_id,
+            "wires": [[out_id]],
+        },
+        {
+            "id": out_id, "type": "mqtt out",
+            "name": "TB Security Telemetry",
+            "topic": "", "qos": "1", "retain": "false",
+            "broker": tb_broker_id,
+            "x": 650, "y": 220, "z": tab_id,
+            "wires": [],
+        },
+    ]
+
+
+def _load_existing_gateway_credentials(root: Path, floor_str: str) -> tuple[str, str]:
+    """Read observer password and TB gateway token from an existing flows_cred.json."""
+    p = root / f"gateways/floor-{floor_str}/flows_cred.json"
+    if not p.is_file():
+        raise FileNotFoundError(f"Missing existing credentials file: {p}")
+    data = json.loads(p.read_text(encoding="utf-8"))
+    observer_password = ""
+    gateway_token = ""
+    for entry in data.values():
+        if entry.get("user") == OBSERVER_USER:
+            observer_password = entry.get("password", "")
+        elif entry.get("user"):
+            gateway_token = entry["user"]
+    if not observer_password or not gateway_token:
+        raise RuntimeError(f"Could not infer observer password + gateway token from {p}")
+    return gateway_token, observer_password
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--url", default=TB_URL_DEFAULT)
@@ -551,13 +961,18 @@ def main() -> int:
     ap.add_argument("--password", default="admins")
     ap.add_argument("--observer-password", default=None,
                     help="HiveMQ campus_observer password (auto-read from credentials.xml if omitted)")
+    ap.add_argument(
+        "--offline-existing-creds",
+        action="store_true",
+        help="Regenerate flows using existing gateways/floor-XX/flows_cred.json tokens; no TB API calls.",
+    )
     args = ap.parse_args()
 
     root = Path(__file__).resolve().parents[1]
 
     # Auto-read observer password from credentials.xml
     observer_pw = args.observer_password
-    if not observer_pw:
+    if not observer_pw and not args.offline_existing_creds:
         creds_xml = root / "config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml"
         if creds_xml.is_file():
             import xml.etree.ElementTree as ET
@@ -570,19 +985,26 @@ def main() -> int:
             print("ERROR: could not find campus_observer password. Pass --observer-password.", file=sys.stderr)
             return 1
 
-    print(f"Logging in to ThingsBoard at {args.url} …")
-    token = _jwt(args.url, args.username, args.password)
+    token = None
+    if not args.offline_existing_creds:
+        print(f"Logging in to ThingsBoard at {args.url} …")
+        token = _jwt(args.url, args.username, args.password)
 
     for floor in range(1, 11):
         floor_str = f"{floor:02d}"
         gw_name = f"gw-floor-{floor_str}"
 
-        print(f"  [{floor_str}] Upsert gateway device '{gw_name}' …", end=" ", flush=True)
-        dev_id = _upsert_gateway_device(args.url, token, gw_name)
-        gw_token = _get_access_token(args.url, token, dev_id)
-        print(f"token={gw_token[:12]}…")
+        if args.offline_existing_creds:
+            gw_token, observer_pw_for_floor = _load_existing_gateway_credentials(root, floor_str)
+            print(f"  [{floor_str}] Reusing existing gateway token {gw_token[:12]}…")
+        else:
+            print(f"  [{floor_str}] Upsert gateway device '{gw_name}' …", end=" ", flush=True)
+            dev_id = _upsert_gateway_device(args.url, token, gw_name)
+            gw_token = _get_access_token(args.url, token, dev_id)
+            observer_pw_for_floor = observer_pw
+            print(f"token={gw_token[:12]}…")
 
-        flow, creds = _build_flow(floor, gw_token, observer_pw)
+        flow, creds = _build_flow(floor, gw_token, observer_pw_for_floor)
         out_dir = root / f"gateways/floor-{floor_str}"
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "flows.json").write_text(json.dumps(flow, indent=2), encoding="utf-8")

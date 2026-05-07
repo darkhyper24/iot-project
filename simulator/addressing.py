@@ -59,3 +59,42 @@ def is_mqtt_room(room_num_on_floor: int, config: dict) -> bool:
 
 def is_coap_room(room_num_on_floor: int, config: dict) -> bool:
     return not is_mqtt_room(room_num_on_floor, config)
+
+
+# ---------------------------------------------------------------------------
+# Plan A.2 — canonical MQTT (global) <-> ThingsBoard (per-floor) ID mapping.
+# Two namespaces co-exist intentionally:
+#   * MQTT topic / simulator:   r{floor*100 + room_on_floor}, e.g. r109
+#   * ThingsBoard device/asset: r{room_on_floor:03d},          e.g. r009
+# Node-RED gateways translate between them.
+# ---------------------------------------------------------------------------
+
+
+def mqtt_room_number(floor: int, room_on_floor: int) -> int:
+    """Global room number used in MQTT topics + simulator (e.g. floor 1 r9 -> 109)."""
+    return floor * 100 + room_on_floor
+
+
+def mqtt_room_slug(floor: int, room_on_floor: int) -> str:
+    """e.g. 'r109'."""
+    return f"r{mqtt_room_number(floor, room_on_floor):03d}"
+
+
+def tb_room_slug(room_on_floor: int) -> str:
+    """e.g. 'r009'."""
+    return f"r{room_on_floor:03d}"
+
+
+def tb_device_name(building_id: str, floor: int, room_on_floor: int) -> str:
+    """e.g. 'b01-f01-r009'."""
+    return f"{building_id}-f{floor:02d}-{tb_room_slug(room_on_floor)}"
+
+
+def tb_to_mqtt_room_number(tb_room_on_floor: int, floor: int) -> int:
+    """Reverse of mqtt_room_number for the TB-style local index."""
+    return mqtt_room_number(floor, tb_room_on_floor)
+
+
+def mqtt_to_tb_room_on_floor(mqtt_room_number_value: int) -> int:
+    """Reverse: 109 -> 9."""
+    return mqtt_room_number_value % 100

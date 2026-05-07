@@ -10,6 +10,8 @@ from gmqtt import Client as MQTTClient
 from simulator import addressing
 from simulator.coap_server import CampusCoAPSite
 from simulator.engine.commands import CommandHandler
+from simulator.engine.ota import OtaSubscriber
+from simulator.engine.twin import BroadCommandFanout, DesiredStateSubscriber, TwinReporter
 from simulator.models.room import Room
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,10 @@ class WorldEngine:
         self._sim_real_start = time.perf_counter()
         self._sim_epoch_start = int(time.time())
         self._cmd_handler: CommandHandler | None = None
+        self._twin_reporter: TwinReporter | None = None
+        self._desired_sub: DesiredStateSubscriber | None = None
+        self._ota_sub: OtaSubscriber | None = None
+        self._fanout: BroadCommandFanout | None = None
 
     async def initialize(self) -> None:
         building_id = self.config["building"]["id"]
@@ -87,6 +93,21 @@ class WorldEngine:
     def _fleet_monitoring_topic(self) -> str:
         return addressing.fleet_monitoring_topic(self.config)
 
+    async def start_phase3_clients(self) -> None:
+        """Plan A.4 + B.2 + B.3 + B.5 — central system clients."""
+        self._twin_reporter = TwinReporter(self.config, self.rooms)
+        await self._twin_reporter.start()
+
+        self._desired_sub = DesiredStateSubscriber(self.config, self.rooms)
+        await self._desired_sub.start()
+
+        self._ota_sub = OtaSubscriber(self.config, self.rooms)
+        await self._ota_sub.start()
+
+        if self._cmd_handler is not None:
+            self._fanout = BroadCommandFanout(self.config, self._cmd_handler)
+            await self._fanout.start()
+
     async def run(self) -> None:
         for room in self.rooms:
             task = asyncio.create_task(self._room_loop(room))
@@ -94,6 +115,8 @@ class WorldEngine:
 
         self._tasks.append(asyncio.create_task(self._sync_loop()))
         self._tasks.append(asyncio.create_task(self._fleet_health_loop()))
+        if self._twin_reporter is not None:
+            self._tasks.append(asyncio.create_task(self._twin_reporter.periodic_loop()))
 
         logger.info("World engine running: %d room tasks + sync + fleet health", len(self.rooms))
         await asyncio.gather(*self._tasks)
@@ -110,8 +133,12 @@ class WorldEngine:
             start = time.perf_counter()
             timestamp = self._simulation_time()
 
+            # Plan B.3 — apply pending desired-state before physics tick.
+            desired_changed = room.apply_desired()
             room.tick(self.config, timestamp)
             room.maybe_inject_fault(self.config)
+            if desired_changed and self._twin_reporter is not None:
+                self._twin_reporter.publish_reported(room, timestamp, force=True)
 
             if room.active_fault == "node_dropout":
                 elapsed = time.perf_counter() - start
@@ -196,6 +223,12 @@ class WorldEngine:
         for task in self._tasks:
             task.cancel()
         await asyncio.gather(*self._tasks, return_exceptions=True)
+        for client in (self._twin_reporter, self._desired_sub, self._ota_sub, self._fanout):
+            if client is not None:
+                try:
+                    await client.stop()
+                except Exception:  # noqa: BLE001
+                    logger.exception("Phase 3 client shutdown error")
         await self.db.save_states(self.rooms)
         logger.info("Final state saved. Shutdown complete.")
 

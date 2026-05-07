@@ -52,8 +52,9 @@ class CommandHandler:
 
         modified: list[Room] = []
         for room in targets:
-            if not room.uses_mqtt:
-                continue
+            # Broad-scope commands (campus/b01/cmd or campus/b01/f##/cmd) reach all 200
+            # rooms via the simulator-side fanout client; per-room MQTT scope still
+            # only delivers to MQTT-backed rooms.
             if not self.consume_cmd_id(room, command):
                 logger.info("Skipping duplicate cmd_id=%s for room %s", command.get("cmd_id"), room.id)
                 continue
@@ -100,14 +101,14 @@ class CommandHandler:
         if parts[0] != prefix or parts[1] != bslug:
             return []
 
-        # campus/b01/cmd — all MQTT rooms
+        # campus/b01/cmd — all 200 rooms (MQTT + CoAP, applied in-memory)
         if len(parts) == 3:
-            return [room for room in self.rooms if room.uses_mqtt]
+            return list(self.rooms)
 
-        # campus/b01/f02/cmd
+        # campus/b01/f02/cmd — every room on that floor
         if len(parts) == 4 and parts[2].startswith("f"):
             floor = int(parts[2][1:])
-            return [room for room in self.rooms if room.uses_mqtt and room.floor_number == floor]
+            return [room for room in self.rooms if room.floor_number == floor]
 
         # campus/b01/f02/r201/cmd
         if len(parts) == 5 and parts[2].startswith("f") and parts[3].startswith("r"):

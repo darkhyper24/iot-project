@@ -44,6 +44,17 @@ class Room:
 
         self.fault_injector = FaultInjector()
 
+        # Phase 3 — per-room physics overrides (OTA can hot-swap), default to global cfg.
+        self.alpha: float | None = None
+        self.beta: float | None = None
+        # OTA fleet versioning.
+        self.current_version: str = str(config.get("ota", {}).get("initial_version", "1.0"))
+        self._ota_last_version: str | None = None
+        # Shadow state: pending desired update applied on next tick.
+        self.desired_state: dict | None = None
+        # Reporter snapshot — last actuator state we published as a client attr.
+        self._last_reported: dict | None = None
+
     @property
     def active_fault(self) -> str | None:
         return self.fault_injector.active_fault
@@ -62,8 +73,8 @@ class Room:
 
     def tick(self, config: dict, timestamp: int) -> None:
         thermal = config["thermal"]
-        alpha = thermal["alpha"]
-        beta = thermal["beta"]
+        alpha = self.alpha if self.alpha is not None else thermal["alpha"]
+        beta = self.beta if self.beta is not None else thermal["beta"]
         outside_temp = physics.outside_temperature(thermal["outside_temp"], timestamp)
 
         # 1. Thermal leakage (Newton's Law of Cooling)
@@ -169,6 +180,44 @@ class Room:
 
         self.target_temp = max(15.0, min(50.0, self.target_temp))
         self.lighting_dimmer = max(0, min(100, self.lighting_dimmer))
+
+    def apply_desired(self) -> bool:
+        """Reconcile pending desired-state update; return True if anything changed."""
+        if not self.desired_state:
+            return False
+        cmd: dict = {}
+        ds = self.desired_state
+        if "hvac_mode_desired" in ds:
+            cmd["hvac_mode"] = ds["hvac_mode_desired"]
+        if "lighting_dimmer_desired" in ds:
+            cmd["lighting_dimmer"] = ds["lighting_dimmer_desired"]
+        if "target_temp_desired" in ds:
+            cmd["target_temp"] = ds["target_temp_desired"]
+        if "alpha" in ds:
+            try:
+                self.alpha = float(ds["alpha"])
+            except (TypeError, ValueError):
+                pass
+        if "beta" in ds:
+            try:
+                self.beta = float(ds["beta"])
+            except (TypeError, ValueError):
+                pass
+        self.desired_state = None
+        if not cmd:
+            return "alpha" in ds or "beta" in ds
+        before = (self.hvac_mode, self.lighting_dimmer, self.target_temp)
+        self.apply_command(cmd)
+        return before != (self.hvac_mode, self.lighting_dimmer, self.target_temp)
+
+    def reported_attrs(self, timestamp: int) -> dict:
+        return {
+            "hvac_mode_reported": self.hvac_mode,
+            "lighting_dimmer_reported": self.lighting_dimmer,
+            "target_temp_reported": round(self.target_temp, 2),
+            "current_version": self.current_version,
+            "last_seen": timestamp,
+        }
 
     def _format_building_slug(self, building_id: str) -> str:
         digits = "".join(ch for ch in building_id if ch.isdigit()) or "01"

@@ -111,6 +111,10 @@ async def main() -> None:
     engine.mqtt_clients = mqtt_clients
     engine.setup_mqtt(cmd_handler)
 
+    # Phase 3 — central system clients (reporter, desired-sub, ota, fanout).
+    engine._cmd_handler = cmd_handler
+    await engine.start_phase3_clients()
+
     loop = asyncio.get_running_loop()
     stop_event = asyncio.Event()
 

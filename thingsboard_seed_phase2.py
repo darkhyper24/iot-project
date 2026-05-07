@@ -42,6 +42,8 @@ import requests
 
 MQTT_PROFILE_NAME = "MQTT_Room_Device"
 COAP_PROFILE_NAME = "CoAP_Room_Device"
+FLOOR_PROFILE_NAME = "Floor_Aggregate_Device"
+SECURITY_PROFILE_NAME = "Security_Event_Device"
 ASSET_PROFILE_NAME_FALLBACK = "default"  # only used for display; default asset profile is fetched from TB
 
 
@@ -188,13 +190,14 @@ def _get_default_asset_profile_id(base_url: str, jwt: str) -> str:
     raise RuntimeError("Default asset profile not found")
 
 
-def upsert_asset(base_url: str, jwt: str, name: str, profile_id: str) -> str:
+def upsert_asset(base_url: str, jwt: str, name: str, profile_id: str, asset_type: str = "default") -> str:
     """Create or update an asset by name; return its entity ID."""
     headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
     existing_id = _find_asset_id(base_url, jwt, name)
     payload: Dict[str, Any] = {
         "name": name,
         "label": name,
+        "type": asset_type,
         "assetProfileId": {"id": profile_id, "entityType": "ASSET_PROFILE"},
     }
     if existing_id:
@@ -220,6 +223,18 @@ def upsert_device(base_url: str, jwt: str, name: str, profile_id: str) -> str:
     return r.json()["id"]["id"]
 
 
+def save_device_credentials_token(base_url: str, jwt: str, device_id: str, token: str) -> None:
+    """Set a deterministic access token for helper devices if needed by external tools."""
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    payload = {
+        "deviceId": {"id": device_id, "entityType": "DEVICE"},
+        "credentialsType": "ACCESS_TOKEN",
+        "credentialsId": token,
+    }
+    r = requests.post(f"{base_url.rstrip('/')}/api/device/credentials", json=payload, headers=headers, timeout=30)
+    r.raise_for_status()
+
+
 def save_relation(base_url: str, jwt: str, from_id: str, from_type: str, to_id: str, to_type: str) -> None:
     headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
     payload = {
@@ -228,6 +243,45 @@ def save_relation(base_url: str, jwt: str, from_id: str, from_type: str, to_id: 
         "type": "Contains",
     }
     requests.post(f"{base_url.rstrip('/')}/api/relation", json=payload, headers=headers, timeout=30).raise_for_status()
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 B.1 — server-side attributes per Room asset.
+# Coordinates derived deterministically from (floor, room_on_floor) on a
+# 1000×1000 floor-plan grid (5 cols × 4 rows), giving every floor a stable
+# layout the seeder can re-run idempotently.
+# ---------------------------------------------------------------------------
+
+ROOM_TYPES = ("lecture_hall", "lab", "office", "corridor")
+GRID_COLS = 5
+GRID_ROWS = 4
+CELL_W = 1000 // GRID_COLS  # 200
+CELL_H = 1000 // GRID_ROWS  # 250
+
+
+def room_metadata(floor: int, room_on_floor: int) -> dict[str, Any]:
+    """Stable, deterministic metadata for one Room asset."""
+    idx = room_on_floor - 1
+    col = idx % GRID_COLS
+    row = idx // GRID_COLS
+    if row >= GRID_ROWS:  # 5x4 grid handles 20; safety net for bigger fleets
+        row = GRID_ROWS - 1
+    cx = col * CELL_W + CELL_W // 2
+    cy = row * CELL_H + CELL_H // 2
+    return {
+        "square_footage": 30 + (room_on_floor * 7) % 60,           # 30..89
+        "occupant_capacity": 8 + (room_on_floor * 3) % 40,         # 8..47
+        "coordinates_x": cx,
+        "coordinates_y": cy,
+        "room_type": ROOM_TYPES[(floor + room_on_floor) % len(ROOM_TYPES)],
+    }
+
+
+def save_server_attributes(base_url: str, jwt: str, asset_id: str, attrs: dict[str, Any]) -> None:
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    url = f"{base_url.rstrip('/')}/api/plugins/telemetry/ASSET/{asset_id}/attributes/SERVER_SCOPE"
+    r = requests.post(url, json=attrs, headers=headers, timeout=30)
+    r.raise_for_status()
 
 
 
@@ -243,28 +297,44 @@ def main() -> int:
 
     mqtt_profile_id = upsert_device_profile(args.url, auth.token, MQTT_PROFILE_NAME)
     coap_profile_id = upsert_device_profile(args.url, auth.token, COAP_PROFILE_NAME)
+    floor_profile_id = upsert_device_profile(args.url, auth.token, FLOOR_PROFILE_NAME)
+    security_profile_id = upsert_device_profile(args.url, auth.token, SECURITY_PROFILE_NAME)
 
     print(f"MQTT device profile id: {mqtt_profile_id}")
     print(f"CoAP  device profile id: {coap_profile_id}")
+    print(f"Floor device profile id: {floor_profile_id}")
+    print(f"Security device profile id: {security_profile_id}")
 
     # 2) Default asset profile
     asset_profile_id = _get_default_asset_profile_id(args.url, auth.token)
 
     # 3) Create / update top-level assets
-    campus_id  = upsert_asset(args.url, auth.token, "Campus", asset_profile_id)
-    building_id = upsert_asset(args.url, auth.token, "b01",   asset_profile_id)
+    campus_id  = upsert_asset(args.url, auth.token, "ZC-Main-Campus", asset_profile_id, "campus")
+    building_id = upsert_asset(args.url, auth.token, "b01", asset_profile_id, "building")
 
     floor_ids = []
     for floor_no in range(1, 11):
-        fid = upsert_asset(args.url, auth.token, f"b01-f{floor_no:02d}", asset_profile_id)
+        fid = upsert_asset(args.url, auth.token, f"b01-f{floor_no:02d}", asset_profile_id, "floor")
         floor_ids.append(fid)
 
     room_ids: list[str] = []
     for floor_no in range(1, 11):
         for room_on_floor in range(1, 21):
-            rid = upsert_asset(args.url, auth.token, f"b01-f{floor_no:02d}-r{room_on_floor:03d}", asset_profile_id)
+            rid = upsert_asset(
+                args.url,
+                auth.token,
+                f"b01-f{floor_no:02d}-r{room_on_floor:03d}",
+                asset_profile_id,
+                "room",
+            )
             room_ids.append(rid)
-        print(f"  Floor {floor_no:02d} room assets done")
+            try:
+                save_server_attributes(
+                    args.url, auth.token, rid, room_metadata(floor_no, room_on_floor),
+                )
+            except requests.HTTPError as e:
+                print(f"    [warn] server attrs for f{floor_no:02d}-r{room_on_floor:03d}: {e}")
+        print(f"  Floor {floor_no:02d} room assets + server attrs done")
 
     print("Assets created/updated.")
 
@@ -276,6 +346,19 @@ def main() -> int:
         save_relation(args.url, auth.token, floor_ids[idx // 20], "ASSET", rid, "ASSET")
 
     print("Asset relations created/updated.")
+
+    # Phase 3 B.1 / B.5 helper devices:
+    # - one Floor aggregate device per floor receives avg_temperature from Node-RED
+    # - one security device receives OTA tamper telemetry
+    floor_device_ids: list[str] = []
+    for floor_no in range(1, 11):
+        dev_name = f"b01-f{floor_no:02d}-floor"
+        dev_id = upsert_device(args.url, auth.token, dev_name, floor_profile_id)
+        floor_device_ids.append(dev_id)
+        save_relation(args.url, auth.token, floor_ids[floor_no - 1], "ASSET", dev_id, "DEVICE")
+    security_device_id = upsert_device(args.url, auth.token, "b01-security", security_profile_id)
+    save_relation(args.url, auth.token, building_id, "ASSET", security_device_id, "DEVICE")
+    print("Floor aggregate + security devices created/updated and linked.")
 
     # 5) Create devices and link each to its room asset
     for floor_no in range(1, 11):
