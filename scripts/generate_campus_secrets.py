@@ -20,7 +20,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-# Match simulator/addressing split: rooms 1–10 per floor MQTT, 11–20 CoAP
+# Match simulator/routing/addressing split: rooms 1–10 per floor MQTT, 11–20 CoAP
 DEFAULT_FLOORS = 10
 DEFAULT_ROOMS_PER_FLOOR = 20
 DEFAULT_MQTT_PER_FLOOR = 10

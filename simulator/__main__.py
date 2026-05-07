@@ -1,5 +1,6 @@
 import asyncio
 
-from simulator.main import main
+from simulator.app import main
+
 
 asyncio.run(main())

@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Iterable
 if TYPE_CHECKING:  # avoid hard import at module load time so pure helpers stay testable
     from gmqtt import Client as MQTTClient
 
-    from simulator.models.room import Room
+    from simulator.domain.room import Room
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +64,8 @@ class OtaSubscriber:
     """One MQTT client; resolves scope from topic; applies to in-memory rooms."""
 
     def __init__(self, config: dict, rooms: "Iterable[Room]"):
-        from simulator import addressing
-        from simulator.system_clients import load_system_clients
+        from simulator.config.system_clients import load_system_clients
+        from simulator.routing import addressing
 
         self.config = config
         self.rooms = list(rooms)
@@ -83,10 +83,10 @@ class OtaSubscriber:
         client = MQTTClient(client_id="sim-ota")
         client.set_auth_credentials(cred["username"], cred["password"])
         client.on_message = self._on_message
-        from simulator import addressing
-        from simulator.engine.twin import _connect  # reuse connect helper
+        from simulator.networking.mqtt import connect_mqtt_client
+        from simulator.routing import addressing
 
-        await _connect(client, self.config)
+        await connect_mqtt_client(client, self.config, "OTA subscriber")
         prefix = addressing.campus_prefix(self.config)
         bldg = addressing.building_slug(self.config)
         topics = [

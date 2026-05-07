@@ -1,6 +1,6 @@
 """Plan A.2 — round-trip tests for MQTT (global) <-> ThingsBoard (local) IDs."""
 
-from simulator import addressing
+from simulator.routing import addressing
 
 
 def test_round_trip_all_200_rooms():

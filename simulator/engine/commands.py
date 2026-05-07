@@ -2,8 +2,8 @@ import json
 import logging
 from typing import Any, Callable
 
-from simulator import addressing
-from simulator.models.room import Room
+from simulator.domain.room import Room
+from simulator.routing import addressing
 
 logger = logging.getLogger(__name__)
 

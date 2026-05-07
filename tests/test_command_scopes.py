@@ -4,8 +4,8 @@ import asyncio
 from unittest.mock import AsyncMock
 
 from simulator.config import load_config
+from simulator.domain.room import Room
 from simulator.engine.commands import CommandHandler
-from simulator.models.room import Room
 
 
 def _build_rooms(config) -> list[Room]:

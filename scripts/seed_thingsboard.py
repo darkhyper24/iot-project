@@ -21,7 +21,7 @@ Requirements:
     pip install tb-rest-client requests
 
 Run:
-    python thingsboard_seed_phase2.py \
+    python scripts/seed_thingsboard.py \
       --url http://localhost:9090 \
       --username admin@gmail.com \
       --password admins

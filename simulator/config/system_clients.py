@@ -16,7 +16,7 @@ _DEFAULT_PATH = "config/secrets/system_clients.json"
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def load_system_clients(config: dict) -> dict[str, dict[str, str]]:

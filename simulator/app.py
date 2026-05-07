@@ -5,27 +5,22 @@ import signal
 
 from gmqtt import Client as MQTTClient
 from gmqtt.client import Message as MQTTWillMessage
-from gmqtt.mqtt.constants import MQTTv311, MQTTv50
 
-from simulator import addressing
-from simulator.coap_server import CampusCoAPSite
 from simulator.config import load_config
-from simulator.credentials import load_mqtt_credentials_map, mqtt_user_pass_for_room
+from simulator.config.credentials import load_mqtt_credentials_map, mqtt_user_pass_for_room
 from simulator.engine.commands import CommandHandler
 from simulator.engine.world_engine import WorldEngine
-from simulator.mqtt_tls import ssl_context_from_config
+from simulator.networking.coap.server import CampusCoAPSite
+from simulator.networking.mqtt import mqtt_protocol_version
+from simulator.networking.tls import ssl_context_from_config
 from simulator.persistence.database import Database
+from simulator.routing import addressing
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
-
-
-def _mqtt_protocol_version(config: dict):
-    v = str(config["mqtt"].get("protocol_version", "5"))
-    return MQTTv311 if v.startswith("3") else MQTTv50
 
 
 async def _create_and_connect_mqtt_clients(
@@ -37,7 +32,7 @@ async def _create_and_connect_mqtt_clients(
     ssl_ctx = ssl_context_from_config(config)
     ssl_arg = ssl_ctx if ssl_ctx is not None else False
     stagger = float(config.get("phase2", {}).get("mqtt_connect_stagger_s", 0.05))
-    proto_ver = _mqtt_protocol_version(config)
+    proto_ver = mqtt_protocol_version(config)
 
     cred_map = load_mqtt_credentials_map(config)
 

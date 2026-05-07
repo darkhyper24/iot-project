@@ -1,6 +1,6 @@
-from simulator import physics
-from simulator import addressing
-from simulator.faults import FaultInjector
+from simulator.domain import physics
+from simulator.domain.faults import FaultInjector
+from simulator.routing import addressing
 
 
 class Room:
@@ -52,9 +52,6 @@ class Room:
         self._ota_last_version: str | None = None
         # Shadow state: pending desired update applied on next tick.
         self.desired_state: dict | None = None
-        # Reporter snapshot — last actuator state we published as a client attr.
-        self._last_reported: dict | None = None
-
     @property
     def active_fault(self) -> str | None:
         return self.fault_injector.active_fault

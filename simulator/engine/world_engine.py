@@ -7,12 +7,12 @@ from typing import Any
 
 from gmqtt import Client as MQTTClient
 
-from simulator import addressing
-from simulator.coap_server import CampusCoAPSite
+from simulator.domain.room import Room
 from simulator.engine.commands import CommandHandler
 from simulator.engine.ota import OtaSubscriber
 from simulator.engine.twin import BroadCommandFanout, DesiredStateSubscriber, TwinReporter
-from simulator.models.room import Room
+from simulator.networking.coap.server import CampusCoAPSite
+from simulator.routing import addressing
 
 logger = logging.getLogger(__name__)
 

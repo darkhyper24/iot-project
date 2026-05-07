@@ -3,7 +3,7 @@
 
 Output: thingsboard/assets/floor_plans/floor-##.svg
 
-Uses the same 5×4 grid as ``thingsboard_seed_phase2.room_metadata``, so polygon
+Uses the same 5×4 grid as ``scripts/seed_thingsboard.py``'s room metadata, so polygon
 coordinates seeded as Room asset server-attrs (coordinates_x / coordinates_y)
 align with the visual rooms in the SVG.
 
