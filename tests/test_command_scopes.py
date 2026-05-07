@@ -1,6 +1,5 @@
 """Plan A.4 — broad command resolves to all rooms (MQTT + CoAP)."""
 
-import asyncio
 from unittest.mock import AsyncMock
 
 from simulator.config import load_config

@@ -14,8 +14,6 @@ import time
 from typing import TYPE_CHECKING, Any, Iterable
 
 if TYPE_CHECKING:  # avoid hard import at module load time so pure helpers stay testable
-    from gmqtt import Client as MQTTClient
-
     from simulator.domain.room import Room
 
 logger = logging.getLogger(__name__)

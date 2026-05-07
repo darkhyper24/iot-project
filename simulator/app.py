@@ -11,8 +11,7 @@ from simulator.config.credentials import load_mqtt_credentials_map, mqtt_user_pa
 from simulator.engine.commands import CommandHandler
 from simulator.engine.world_engine import WorldEngine
 from simulator.networking.coap.server import CampusCoAPSite
-from simulator.networking.mqtt import mqtt_protocol_version
-from simulator.networking.tls import ssl_context_from_config
+from simulator.networking.mqtt import connect_mqtt_client
 from simulator.persistence.database import Database
 from simulator.routing import addressing
 
@@ -27,13 +26,7 @@ async def _create_and_connect_mqtt_clients(
     config: dict,
     rooms: list,
 ) -> dict[str, MQTTClient]:
-    broker_host = config["mqtt"]["broker_host"]
-    broker_port = int(config["mqtt"]["broker_port"])
-    ssl_ctx = ssl_context_from_config(config)
-    ssl_arg = ssl_ctx if ssl_ctx is not None else False
     stagger = float(config.get("phase2", {}).get("mqtt_connect_stagger_s", 0.05))
-    proto_ver = mqtt_protocol_version(config)
-
     cred_map = load_mqtt_credentials_map(config)
 
     clients: dict[str, MQTTClient] = {}
@@ -61,16 +54,7 @@ async def _create_and_connect_mqtt_clients(
 
         clients[room.id] = client
 
-        for attempt in range(1, 11):
-            try:
-                await client.connect(broker_host, broker_port, ssl=ssl_arg, version=proto_ver)
-                logger.info("MQTT connected %s -> %s:%s", cid, broker_host, broker_port)
-                break
-            except Exception as e:
-                logger.warning("MQTT connect %s attempt %d/10 failed: %s", cid, attempt, e)
-                if attempt == 10:
-                    raise ConnectionError(f"Could not connect MQTT client {cid}") from e
-                await asyncio.sleep(2)
+        await connect_mqtt_client(client, config, label=cid)
 
         if i < len(mqtt_rooms) - 1 and stagger > 0:
             await asyncio.sleep(stagger)

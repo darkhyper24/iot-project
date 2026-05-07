@@ -8,23 +8,19 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
+
+from simulator.config._paths import resolve_under_repo
 
 logger = logging.getLogger(__name__)
 
 _DEFAULT_PATH = "config/secrets/system_clients.json"
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
-
-
 def load_system_clients(config: dict) -> dict[str, dict[str, str]]:
     """Return {role: {"username": ..., "password": ...}} for the four system roles."""
     path = config.get("phase3", {}).get("system_clients_file", _DEFAULT_PATH)
-    p = Path(path)
-    if not p.is_absolute():
-        p = _repo_root() / p
+    p = resolve_under_repRemaining nits worth considering:
+o(path)
     if not p.is_file():
         logger.warning("System clients file %s not found — Phase 3 fanout/reporter/ota disabled.", p)
         return {}

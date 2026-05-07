@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
 from typing import TYPE_CHECKING
+
+from simulator.config._paths import resolve_under_repo
 
 if TYPE_CHECKING:
     from simulator.domain.room import Room
@@ -13,18 +14,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
-
-
 def load_mqtt_credentials_map(config: dict) -> dict[str, tuple[str, str]]:
     """room_id -> (username, password). Empty if file missing or invalid."""
-    path = config.get("mqtt", {}).get("credentials_file") or ""
-    if not path:
-        path = "config/secrets/mqtt_nodes.json"
-    p = Path(path)
-    if not p.is_absolute():
-        p = _repo_root() / p
+    path = config.get("mqtt", {}).get("credentials_file") or "config/secrets/mqtt_nodes.json"
+    p = resolve_under_repo(path)
     if not p.is_file():
         logger.warning("MQTT credentials file not found at %s — using mqtt.username/password from YAML", p)
         return {}
