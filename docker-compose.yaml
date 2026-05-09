@@ -1,13 +1,11 @@
 # Phase 2 stack: HiveMQ (MQTT backbone + File RBAC), ThingsBoard CE, 10 Node-RED floor gateways,
 # simulator Postgres, and the campus simulator.
 #
-# Before first `docker compose up` (security defaults):
-#   1. cp .env.example .env
-#   2. scripts/gen_broker_keystore.sh   → broker.jks + ca.crt under config/certs/
-#   3. python scripts/generate_campus_secrets.py   → mqtt_nodes.json, coap_psk.json, HiveMQ credentials.xml
+# Fresh machine startup:
+#   docker compose up --build
 #
-# ThingsBoard first-time DB init (run once after `docker compose up -d postgres-tb` is healthy):
-#   docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=false thingsboard
+# Compose prepares generated secrets/certs, installs ThingsBoard with demo users,
+# seeds ThingsBoard project entities, and regenerates Node-RED gateway credentials.
 
 x-gateway_template: &gateway_template
   image: nodered/node-red:4.0
@@ -17,10 +15,21 @@ x-gateway_template: &gateway_template
       condition: service_started
     simulator:
       condition: service_started
+    thingsboard-bootstrap:
+      condition: service_completed_successfully
   networks:
     - iot-net
 
 services:
+  docker-prepare-security:
+    build: .
+    image: iot-campus-simulator:local
+    command: ["bash", "scripts/docker_prepare_security.sh"]
+    volumes:
+      - ./config:/app/config
+    networks:
+      - iot-net
+
   postgres:
     image: postgres:15
     environment:
@@ -72,6 +81,25 @@ services:
       - ./config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml:/opt/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml:ro
     environment:
       HIVEMQ_LOG_LEVEL: INFO
+    depends_on:
+      docker-prepare-security:
+        condition: service_completed_successfully
+    networks:
+      - iot-net
+
+  thingsboard-install:
+    image: thingsboard/tb-node:4.3.1.1
+    environment:
+      TB_SERVICE_ID: tb-ce-install
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-tb:5432/thingsboard
+      INSTALL_TB: "true"
+      LOAD_DEMO: "true"
+      JAVA_OPTS: -Xms512m -Xmx2048m
+    depends_on:
+      postgres-tb:
+        condition: service_healthy
+    volumes:
+      - tb-logs:/var/log/thingsboard
     networks:
       - iot-net
 
@@ -88,13 +116,35 @@ services:
     depends_on:
       postgres-tb:
         condition: service_healthy
+      thingsboard-install:
+        condition: service_completed_successfully
     volumes:
       - tb-logs:/var/log/thingsboard
     networks:
       - iot-net
 
+  thingsboard-bootstrap:
+    build: .
+    image: iot-campus-simulator:local
+    command: ["python", "scripts/docker_bootstrap_thingsboard.py"]
+    environment:
+      TB_BOOTSTRAP_URL: http://thingsboard:8080
+      TB_BOOTSTRAP_USERNAME: ${TB_BOOTSTRAP_USERNAME:-tenant@thingsboard.org}
+      TB_BOOTSTRAP_PASSWORD: ${TB_BOOTSTRAP_PASSWORD:-tenant}
+    depends_on:
+      docker-prepare-security:
+        condition: service_completed_successfully
+      thingsboard:
+        condition: service_started
+    volumes:
+      - ./config:/app/config:ro
+      - ./gateways:/app/gateways
+    networks:
+      - iot-net
+
   simulator:
     build: .
+    image: iot-campus-simulator:local
     env_file:
       - path: .env
         required: false
@@ -103,6 +153,8 @@ services:
         condition: service_healthy
       hivemq:
         condition: service_started
+      docker-prepare-security:
+        condition: service_completed_successfully
     environment:
       DB_HOST: postgres
       DB_PORT: "5432"
