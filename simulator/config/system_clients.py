@@ -19,8 +19,7 @@ _DEFAULT_PATH = "config/secrets/system_clients.json"
 def load_system_clients(config: dict) -> dict[str, dict[str, str]]:
     """Return {role: {"username": ..., "password": ...}} for the four system roles."""
     path = config.get("phase3", {}).get("system_clients_file", _DEFAULT_PATH)
-    p = resolve_under_repRemaining nits worth considering:
-o(path)
+    p = resolve_under_repo(path)
     if not p.is_file():
         logger.warning("System clients file %s not found — Phase 3 fanout/reporter/ota disabled.", p)
         return {}
