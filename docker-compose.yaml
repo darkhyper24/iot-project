@@ -4,7 +4,7 @@
 # Fresh machine startup:
 #   docker compose up --build
 #
-# Compose prepares generated secrets/certs, installs ThingsBoard with demo users,
+# Compose prepares generated secrets/certs, installs ThingsBoard with demo users once,
 # seeds ThingsBoard project entities, and regenerates Node-RED gateway credentials.
 
 x-gateway_template: &gateway_template
@@ -89,6 +89,7 @@ services:
 
   thingsboard-install:
     image: thingsboard/tb-node:4.3.1.1
+    command: ["bash", "/usr/local/bin/docker_thingsboard_install_once.sh"]
     environment:
       TB_SERVICE_ID: tb-ce-install
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-tb:5432/thingsboard
@@ -99,6 +100,7 @@ services:
       postgres-tb:
         condition: service_healthy
     volumes:
+      - ./scripts/docker_thingsboard_install_once.sh:/usr/local/bin/docker_thingsboard_install_once.sh:ro
       - tb-logs:/var/log/thingsboard
     networks:
       - iot-net

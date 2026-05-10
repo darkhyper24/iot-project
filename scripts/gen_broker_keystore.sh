@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Generate self-signed TLS material + broker.jks for HiveMQ tls-tcp-listener on 8883.
-set -euo pipefail
+set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="${ROOT}/config/certs"
 mkdir -p "$OUT"

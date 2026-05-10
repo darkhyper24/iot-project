@@ -699,7 +699,8 @@ for (var i = 1; i <= {ROOMS_PER_FLOOR}; i++) {{
         payload: JSON.stringify({{
             id: ({int(floor_str)} * 1000) + i,
             device: device,
-            shared: keys
+            client: false,
+            keys: keys
         }})
     }});
 }}
