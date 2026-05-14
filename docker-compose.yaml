@@ -1,4 +1,35 @@
+# Phase 2 stack: HiveMQ (MQTT backbone + File RBAC), ThingsBoard CE, 10 Node-RED floor gateways,
+# simulator Postgres, and the campus simulator.
+#
+# Fresh machine startup:
+#   docker compose up --build
+#
+# Compose prepares generated secrets/certs, installs ThingsBoard with demo users once,
+# seeds ThingsBoard project entities, and regenerates Node-RED gateway credentials.
+
+x-gateway_template: &gateway_template
+  image: nodered/node-red:4.0
+  restart: unless-stopped
+  depends_on:
+    hivemq:
+      condition: service_started
+    simulator:
+      condition: service_started
+    thingsboard-bootstrap:
+      condition: service_completed_successfully
+  networks:
+    - iot-net
+
 services:
+  docker-prepare-security:
+    build: .
+    image: iot-campus-simulator:local
+    command: ["bash", "scripts/docker_prepare_security.sh"]
+    volumes:
+      - ./config:/app/config
+    networks:
+      - iot-net
+
   postgres:
     image: postgres:15
     environment:
@@ -17,36 +48,236 @@ services:
     networks:
       - iot-net
 
-  mqtt-broker:
-    image: eclipse-mosquitto:2
+  postgres-tb:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: thingsboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
-      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - tb-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d thingsboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - iot-net
+
+  hivemq:
+    build:
+      context: .
+      dockerfile: Dockerfile.hivemq
+    image: iot-hivemq-ce:file-rbac
+    hostname: hivemq
     ports:
-      - "1884:1883"
+      - "1883:1883"
+      - "8883:8883"
+    volumes:
+      - hivemq-data:/opt/hivemq/data
+      - ./config/hivemq/conf:/opt/hivemq/conf:ro
+      - ./config/certs:/opt/hivemq/certs:ro
+      - ./config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml:/opt/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml:ro
+    environment:
+      HIVEMQ_LOG_LEVEL: INFO
+    depends_on:
+      docker-prepare-security:
+        condition: service_completed_successfully
+    networks:
+      - iot-net
+
+  thingsboard-install:
+    image: thingsboard/tb-node:4.3.1.1
+    command: ["bash", "/usr/local/bin/docker_thingsboard_install_once.sh"]
+    environment:
+      TB_SERVICE_ID: tb-ce-install
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-tb:5432/thingsboard
+      INSTALL_TB: "true"
+      LOAD_DEMO: "true"
+      JAVA_OPTS: -Xms512m -Xmx2048m
+    depends_on:
+      postgres-tb:
+        condition: service_healthy
+    volumes:
+      - ./scripts/docker_thingsboard_install_once.sh:/usr/local/bin/docker_thingsboard_install_once.sh:ro
+      - tb-logs:/var/log/thingsboard
+    networks:
+      - iot-net
+
+  thingsboard:
+    image: thingsboard/tb-node:4.3.1.1
+    hostname: thingsboard
+    ports:
+      - "9090:8080"
+      - "7070:7070"
+    environment:
+      TB_SERVICE_ID: tb-ce-node
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-tb:5432/thingsboard
+      JAVA_OPTS: -Xms512m -Xmx2048m
+    depends_on:
+      postgres-tb:
+        condition: service_healthy
+      thingsboard-install:
+        condition: service_completed_successfully
+    volumes:
+      - tb-logs:/var/log/thingsboard
+    networks:
+      - iot-net
+
+  thingsboard-bootstrap:
+    build: .
+    image: iot-campus-simulator:local
+    command: ["python", "scripts/docker_bootstrap_thingsboard.py"]
+    environment:
+      TB_BOOTSTRAP_URL: http://thingsboard:8080
+      TB_BOOTSTRAP_USERNAME: ${TB_BOOTSTRAP_USERNAME:-tenant@thingsboard.org}
+      TB_BOOTSTRAP_PASSWORD: ${TB_BOOTSTRAP_PASSWORD:-tenant}
+    depends_on:
+      docker-prepare-security:
+        condition: service_completed_successfully
+      thingsboard:
+        condition: service_started
+    volumes:
+      - ./config:/app/config:ro
+      - ./gateways:/app/gateways
     networks:
       - iot-net
 
   simulator:
     build: .
+    image: iot-campus-simulator:local
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       postgres:
         condition: service_healthy
-      mqtt-broker:
+      hivemq:
         condition: service_started
+      docker-prepare-security:
+        condition: service_completed_successfully
     environment:
       DB_HOST: postgres
       DB_PORT: "5432"
       DB_USER: iot_user
       DB_PASSWORD: iot_password
       DB_NAME: iot_campus
-      MQTT_BROKER_HOST: mqtt-broker
+      MQTT_BROKER_HOST: hivemq
+      MQTT_BROKER_PORT: ${MQTT_BROKER_PORT:-8883}
+      MQTT_USE_TLS: ${MQTT_USE_TLS:-true}
+      MQTT_TLS_CAFILE: ${MQTT_TLS_CAFILE:-/app/config/certs/ca.crt}
+      MQTT_TLS_CERTFILE: ${MQTT_TLS_CERTFILE:-/app/config/certs/client.crt}
+      MQTT_TLS_KEYFILE: ${MQTT_TLS_KEYFILE:-/app/config/certs/client.key}
+      MQTT_TLS_CHECK_HOSTNAME: ${MQTT_TLS_CHECK_HOSTNAME:-false}
+      MQTT_CREDENTIALS_FILE: ${MQTT_CREDENTIALS_FILE:-/app/config/secrets/mqtt_nodes.json}
+      COAP_PSK_FILE: ${COAP_PSK_FILE:-/app/config/secrets/coap_psk.json}
     volumes:
       - ./config:/app/config
+    ports:
+      - "5694:5684/udp"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       - iot-net
 
+  gateway-floor-01:
+    <<: *gateway_template
+    ports:
+      - "1880:1880"
+    environment:
+      FLOOR: "1"
+    volumes:
+      - ./gateways/floor-01:/data
+
+  gateway-floor-02:
+    <<: *gateway_template
+    ports:
+      - "1881:1880"
+    environment:
+      FLOOR: "2"
+    volumes:
+      - ./gateways/floor-02:/data
+
+  gateway-floor-03:
+    <<: *gateway_template
+    ports:
+      - "1882:1880"
+    environment:
+      FLOOR: "3"
+    volumes:
+      - ./gateways/floor-03:/data
+
+  gateway-floor-04:
+    <<: *gateway_template
+    ports:
+      - "1890:1880"
+    environment:
+      FLOOR: "4"
+    volumes:
+      - ./gateways/floor-04:/data
+
+  gateway-floor-05:
+    <<: *gateway_template
+    ports:
+      - "1891:1880"
+    environment:
+      FLOOR: "5"
+    volumes:
+      - ./gateways/floor-05:/data
+
+  gateway-floor-06:
+    <<: *gateway_template
+    ports:
+      - "1892:1880"
+    environment:
+      FLOOR: "6"
+    volumes:
+      - ./gateways/floor-06:/data
+
+  gateway-floor-07:
+    <<: *gateway_template
+    ports:
+      - "1893:1880"
+    environment:
+      FLOOR: "7"
+    volumes:
+      - ./gateways/floor-07:/data
+
+  gateway-floor-08:
+    <<: *gateway_template
+    ports:
+      - "1894:1880"
+    environment:
+      FLOOR: "8"
+    volumes:
+      - ./gateways/floor-08:/data
+
+  gateway-floor-09:
+    <<: *gateway_template
+    ports:
+      - "1895:1880"
+    environment:
+      FLOOR: "9"
+    volumes:
+      - ./gateways/floor-09:/data
+
+  gateway-floor-10:
+    <<: *gateway_template
+    ports:
+      - "1896:1880"
+    environment:
+      FLOOR: "10"
+    volumes:
+      - ./gateways/floor-10:/data
+
 volumes:
   pgdata:
+  tb-pgdata:
+  tb-logs:
+  hivemq-data:
 
 networks:
   iot-net:

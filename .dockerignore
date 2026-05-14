@@ -1,0 +1,16 @@
+.git
+.codex
+.env
+.venv
+venv
+env
+__pycache__
+**/__pycache__
+*.py[cod]
+*.egg-info
+dist
+build
+data
+perf_logs
+config/secrets/*.json
+config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml

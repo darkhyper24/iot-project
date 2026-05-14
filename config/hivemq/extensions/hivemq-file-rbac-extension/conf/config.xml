@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<extension-configuration>
+    <credentials-reload-interval>60</credentials-reload-interval>
+    <listener-names>
+        <listener-name>mqtt-plain</listener-name>
+        <listener-name>mqtt-tls</listener-name>
+    </listener-names>
+    <password-type>PLAIN</password-type>
+    <next-extension-instead-of-fail>false</next-extension-instead-of-fail>
+</extension-configuration>

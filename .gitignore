@@ -14,6 +14,10 @@ env/
 
 data/
 
+# Generated per-node secrets (see scripts/generate_campus_secrets.py)
+config/secrets/*.json
+config/hivemq/extensions/hivemq-file-rbac-extension/conf/credentials.xml
+
 .idea/
 .vscode/
 *.swp

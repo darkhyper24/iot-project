@@ -1,0 +1,565 @@
+{
+  "cards.markdown_card": {
+    "sizeX": 5,
+    "sizeY": 3.5,
+    "type": "latest",
+    "defaultConfig": {
+      "datasources": [
+        {
+          "type": "function",
+          "name": "function",
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Temperature",
+              "color": "#2196f3",
+              "settings": {},
+              "_hash": 0.15479322438769105,
+              "funcBody": "const baseTemp = 20;\nconst dailySwing = 10;\nconst hourlyVariation = Math.sin((time % 24) * Math.PI / 12) * dailySwing;\nconst randomness = (Math.random() - 0.5) * 2;\nconst smoothingFactor = 0.8;\nreturn (prevValue * smoothingFactor) + ((baseTemp + hourlyVariation + randomness) * (1 -  smoothingFactor));",
+              "aggregationType": null,
+              "units": null,
+              "decimals": null,
+              "usePostProcessing": null,
+              "postFuncBody": null
+            }
+          ],
+          "alarmFilterConfig": {
+            "statusList": [
+              "ACTIVE"
+            ]
+          }
+        }
+      ],
+      "showTitle": false,
+      "backgroundColor": "#fff",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "0px",
+      "settings": {
+        "useMarkdownTextFunction": false,
+        "markdownTextPattern": "### Markdown/HTML card\n - **Current entity**: ${entityName}.\n - **Current value**: ${Temperature}.",
+        "markdownTextFunction": "return '# Some title\\n - Entity name: ' + data[0]['entityName'];",
+        "applyDefaultMarkdownStyle": true,
+        "markdownCss": ""
+      },
+      "title": "Markdown/HTML Card",
+      "showTitleIcon": false,
+      "iconColor": "rgba(0, 0, 0, 0.87)",
+      "iconSize": "24px",
+      "titleTooltip": "",
+      "dropShadow": true,
+      "enableFullscreen": true,
+      "widgetStyle": {},
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400
+      },
+      "showLegend": false
+    }
+  },
+  "cards.entities_table": {
+    "sizeX": 7.5,
+    "sizeY": 6.5,
+    "type": "latest",
+    "defaultConfig": {
+      "showTitle": true,
+      "backgroundColor": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "4px",
+      "settings": {
+        "entitiesTitle": "Entities",
+        "enableSearch": true,
+        "enableSelectColumnDisplay": true,
+        "enableStickyHeader": true,
+        "enableStickyAction": true,
+        "reserveSpaceForHiddenAction": "true",
+        "displayEntityName": false,
+        "displayEntityLabel": false,
+        "displayEntityType": false,
+        "displayPagination": true,
+        "defaultPageSize": 10,
+        "pageStepCount": 3,
+        "pageStepIncrement": 10,
+        "defaultSortOrder": "displayName",
+        "useRowStyleFunction": false
+      },
+      "title": "Entities table",
+      "dropShadow": true,
+      "enableFullscreen": true,
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400,
+        "padding": "5px 10px 5px 10px"
+      },
+      "showLegend": false,
+      "datasources": [
+        {
+          "type": "function",
+          "name": "Simulated",
+          "entityAliasId": null,
+          "filterId": null,
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Entity name",
+              "color": "#2196f3",
+              "settings": {
+                "columnWidth": "0px",
+                "useCellStyleFunction": false,
+                "cellStyleFunction": "",
+                "useCellContentFunction": false,
+                "cellContentFunction": ""
+              },
+              "funcBody": "return 'Simulated';",
+              "aggregationType": null,
+              "units": null,
+              "decimals": null,
+              "usePostProcessing": null,
+              "postFuncBody": null
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Entity type",
+              "color": "#607d8b",
+              "settings": {},
+              "funcBody": "return 'Device';",
+              "decimals": null,
+              "aggregationType": null,
+              "usePostProcessing": null,
+              "postFuncBody": null
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Sin",
+              "color": "#4caf50",
+              "settings": {},
+              "funcBody": "return Math.round(1000*Math.sin(time/5000));",
+              "decimals": 0
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Cos",
+              "color": "#f44336",
+              "settings": {},
+              "funcBody": "return Math.round(1000*Math.cos(time/5000));",
+              "decimals": 0
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Random",
+              "color": "#ffc107",
+              "settings": {},
+              "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;",
+              "decimals": 2
+            }
+          ],
+          "alarmFilterConfig": {
+            "statusList": [
+              "ACTIVE"
+            ]
+          }
+        }
+      ],
+      "configMode": "basic",
+      "actions": {},
+      "showTitleIcon": false,
+      "titleIcon": "list",
+      "iconColor": null
+    }
+  },
+  "charts.basic_timeseries": {
+    "sizeX": 8,
+    "sizeY": 5,
+    "type": "timeseries",
+    "defaultConfig": {
+      "datasources": [
+        {
+          "type": "function",
+          "name": "function",
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "First",
+              "color": "#2196f3",
+              "settings": {
+                "showLines": true,
+                "fillLines": true,
+                "showPoints": false
+              },
+              "_hash": 0.8587686344902596,
+              "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Second",
+              "color": "#ffc107",
+              "settings": {
+                "showLines": true,
+                "fillLines": false,
+                "showPoints": false
+              },
+              "_hash": 0.12775350966079668,
+              "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+            }
+          ]
+        }
+      ],
+      "timewindow": {
+        "realtime": {
+          "timewindowMs": 60000
+        }
+      },
+      "showTitle": true,
+      "backgroundColor": "#fff",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "8px",
+      "settings": {
+        "stack": false,
+        "fontSize": 10,
+        "fontColor": "#545454",
+        "showTooltip": true,
+        "tooltipIndividual": false,
+        "tooltipCumulative": false,
+        "hideZeros": false,
+        "grid": {
+          "verticalLines": true,
+          "horizontalLines": true,
+          "outlineWidth": 1,
+          "color": "#545454",
+          "backgroundColor": null,
+          "tickColor": "#DDDDDD"
+        },
+        "xaxis": {
+          "title": null,
+          "showLabels": true,
+          "color": "#545454"
+        },
+        "yaxis": {
+          "min": null,
+          "max": null,
+          "title": null,
+          "showLabels": true,
+          "color": "#545454",
+          "tickSize": null,
+          "tickDecimals": 0,
+          "ticksFormatter": ""
+        },
+        "shadowSize": 4,
+        "smoothLines": false,
+        "comparisonEnabled": false,
+        "xaxisSecond": {
+          "axisPosition": "top",
+          "title": null,
+          "showLabels": true
+        },
+        "showLegend": true,
+        "legendConfig": {
+          "direction": "column",
+          "position": "bottom",
+          "sortDataKeys": false,
+          "showMin": false,
+          "showMax": false,
+          "showAvg": true,
+          "showTotal": false,
+          "showLatest": false
+        },
+        "customLegendEnabled": false
+      },
+      "title": "Timeseries Line Chart",
+      "dropShadow": true,
+      "enableFullscreen": true,
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400
+      },
+      "mobileHeight": null,
+      "configMode": "basic",
+      "actions": {},
+      "showTitleIcon": false,
+      "titleIcon": "thermostat",
+      "iconColor": "#1F6BDD"
+    }
+  },
+  "maps_v2.image_map": {
+    "sizeX": 8.5,
+    "sizeY": 6.5,
+    "type": "latest",
+    "defaultConfig": {
+      "datasources": [
+        {
+          "type": "function",
+          "name": "First point",
+          "entityAliasId": null,
+          "filterId": null,
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "xPos",
+              "color": "#2196f3",
+              "settings": {},
+              "_hash": 0.05427416942713381,
+              "funcBody": "var value = prevValue || 0.2;\nif (time % 5000 < 500) {\n    value += Math.random() * 0.05 - 0.025;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "yPos",
+              "color": "#4caf50",
+              "settings": {},
+              "_hash": 0.680594833308841,
+              "funcBody": "var value = prevValue || 0.3;\nif (time % 5000 < 500) {\n    value += Math.random() * 0.05 - 0.025;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "temperature",
+              "color": "#9c27b0",
+              "settings": {},
+              "_hash": 0.9430343126300238,
+              "funcBody": "var value = prevValue + Math.random() * 40 - 20;\nif (value < -60) {\n\tvalue = -60;\n} else if (value > 60) {\n\tvalue = 60;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Type",
+              "color": "#8bc34a",
+              "settings": {},
+              "_hash": 0.1784452363910778,
+              "funcBody": "return \"colorpin\";",
+              "units": null,
+              "decimals": null,
+              "usePostProcessing": null,
+              "postFuncBody": null
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "Second point",
+          "entityAliasId": null,
+          "filterId": null,
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "xPos",
+              "color": "#f44336",
+              "settings": {},
+              "_hash": 0.05012157428742059,
+              "funcBody": "var value = prevValue || 0.6;\nif (time % 4000 < 500) {\n    value += Math.random() * 0.05 - 0.025;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "yPos",
+              "color": "#ffc107",
+              "settings": {},
+              "_hash": 0.6742359401617628,
+              "funcBody": "var value = prevValue || 0.7;\nif (time % 4000 < 500) {\n    value += Math.random() * 0.05 - 0.025;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "temperature",
+              "color": "#8bc34a",
+              "settings": {},
+              "_hash": 0.773875863339494,
+              "funcBody": "var value = prevValue + Math.random() * 40 - 20;\nif (value < -60) {\n\tvalue = -60;\n} else if (value > 60) {\n\tvalue = 60;\n}\nreturn value;"
+            },
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Type",
+              "color": "#3f51b5",
+              "settings": {},
+              "_hash": 0.405822538899673,
+              "funcBody": "return \"thermometer\";",
+              "units": null,
+              "decimals": null,
+              "usePostProcessing": null,
+              "postFuncBody": null
+            }
+          ]
+        }
+      ],
+      "showTitle": true,
+      "backgroundColor": "#fff",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "8px",
+      "settings": {
+        "provider": "image-map",
+        "mapImageUrl": "tb-image;/api/images/system/image_map_system_widget_map_image.svg",
+        "latKeyName": "latitude",
+        "lngKeyName": "longitude",
+        "xPosKeyName": "xPos",
+        "yPosKeyName": "yPos",
+        "defaultCenterPosition": "0,0",
+        "disableScrollZooming": false,
+        "disableDoubleClickZooming": false,
+        "disableZoomControl": false,
+        "fitMapBounds": true,
+        "useDefaultCenterPosition": false,
+        "mapPageSize": 16384,
+        "markerOffsetX": 0.5,
+        "markerOffsetY": 1,
+        "posFunction": "return {x: origXPos, y: origYPos};",
+        "draggableMarker": false,
+        "showLabel": true,
+        "useLabelFunction": false,
+        "label": "${entityName}",
+        "showTooltip": true,
+        "showTooltipAction": "click",
+        "autocloseTooltip": true,
+        "useTooltipFunction": false,
+        "tooltipPattern": "<b>${entityName}</b><br/><br/><b>X Pos:</b> ${xPos:2}<br/><b>Y Pos:</b> ${yPos:2}<br/><b>Temperature:</b> ${temperature} \u00b0C<br/><small>See advanced settings for details</small>",
+        "tooltipOffsetX": 0,
+        "tooltipOffsetY": -1,
+        "color": "#fe7569",
+        "useColorFunction": true,
+        "colorFunction": "var type = dsData[dsIndex]['Type'];\nif (type == 'colorpin') {\n\tvar temperature = dsData[dsIndex]['temperature'];\n\tif (typeof temperature !== undefined) {\n\t    var percent = (temperature + 60)/120 * 100;\n\t    return tinycolor.mix('blue', 'red', percent).toHexString();\n\t}\n\treturn 'blue';\n}\n",
+        "useMarkerImageFunction": true,
+        "markerImageSize": 34,
+        "markerImageFunction": "var type = dsData[dsIndex]['Type'];\nif (type == 'thermometer') {\n\tvar res = {\n\t    url: images[0],\n\t    size: 40\n\t}\n\tvar temperature = dsData[dsIndex]['temperature'];\n\tif (typeof temperature !== undefined) {\n\t    var percent = (temperature + 60)/120;\n\t    var index = Math.min(3, Math.floor(4 * percent));\n\t    res.url = images[index];\n\t}\n\treturn res;\n}",
+        "markerImages": [
+          "tb-image;/api/images/system/map_marker_image_0.png",
+          "tb-image;/api/images/system/map_marker_image_1.png",
+          "tb-image;/api/images/system/map_marker_image_2.png",
+          "tb-image;/api/images/system/map_marker_image_3.png"
+        ],
+        "showPolygon": false,
+        "polygonKeyName": "perimeter",
+        "editablePolygon": false,
+        "showPolygonLabel": false,
+        "usePolygonLabelFunction": false,
+        "polygonLabel": "${entityName}",
+        "showPolygonTooltip": false,
+        "showPolygonTooltipAction": "click",
+        "autoClosePolygonTooltip": true,
+        "usePolygonTooltipFunction": false,
+        "polygonTooltipPattern": "<b>${entityName}</b><br/><br/><b>TimeStamp:</b> ${ts:7}",
+        "polygonColor": "#3388ff",
+        "polygonOpacity": 0.2,
+        "usePolygonColorFunction": false,
+        "polygonStrokeColor": "#3388ff",
+        "polygonStrokeOpacity": 1,
+        "polygonStrokeWeight": 3,
+        "usePolygonStrokeColorFunction": false,
+        "showCircle": false,
+        "circleKeyName": "perimeter",
+        "editableCircle": false,
+        "showCircleLabel": false,
+        "useCircleLabelFunction": false,
+        "circleLabel": "${entityName}",
+        "showCircleTooltip": false,
+        "showCircleTooltipAction": "click",
+        "autoCloseCircleTooltip": true,
+        "useCircleTooltipFunction": false,
+        "circleTooltipPattern": "<b>${entityName}</b><br/><br/><b>TimeStamp:</b> ${ts:7}",
+        "circleFillColor": "#3388ff",
+        "circleFillColorOpacity": 0.2,
+        "useCircleFillColorFunction": false,
+        "circleStrokeColor": "#3388ff",
+        "circleStrokeOpacity": 1,
+        "circleStrokeWeight": 3,
+        "useCircleStrokeColorFunction": false
+      },
+      "title": "Image Map",
+      "dropShadow": true,
+      "enableFullscreen": true,
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400
+      },
+      "showLegend": false,
+      "widgetStyle": {},
+      "actions": {}
+    }
+  },
+  "input_widgets.update_shared_string_attribute": {
+    "sizeX": 7.5,
+    "sizeY": 3,
+    "type": "latest",
+    "defaultConfig": {
+      "datasources": [
+        {
+          "type": "function",
+          "name": "function",
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Sin",
+              "color": "#2196f3",
+              "settings": {},
+              "_hash": 0.23592248334107624,
+              "funcBody": "return Math.round(1000*Math.sin(time/5000));"
+            }
+          ]
+        }
+      ],
+      "showTitle": true,
+      "backgroundColor": "#fff",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "8px",
+      "settings": {},
+      "title": "Update shared string attribute",
+      "dropShadow": true,
+      "enableFullscreen": false,
+      "enableDataExport": false,
+      "widgetStyle": {},
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400
+      },
+      "showLegend": false,
+      "actions": {}
+    }
+  },
+  "input_widgets.update_shared_integer_attribute": {
+    "sizeX": 7.5,
+    "sizeY": 3,
+    "type": "latest",
+    "defaultConfig": {
+      "datasources": [
+        {
+          "type": "function",
+          "name": "function",
+          "dataKeys": [
+            {
+              "name": "f(x)",
+              "type": "function",
+              "label": "Random",
+              "color": "#2196f3",
+              "settings": {},
+              "_hash": 0.15479322438769105,
+              "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+            }
+          ]
+        }
+      ],
+      "showTitle": true,
+      "backgroundColor": "#fff",
+      "color": "rgba(0, 0, 0, 0.87)",
+      "padding": "8px",
+      "settings": {},
+      "title": "Update shared integer attribute",
+      "dropShadow": true,
+      "enableFullscreen": false,
+      "widgetStyle": {},
+      "titleStyle": {
+        "fontSize": "16px",
+        "fontWeight": 400
+      },
+      "showLegend": false,
+      "actions": {}
+    }
+  }
+}
