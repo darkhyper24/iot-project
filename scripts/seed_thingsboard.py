@@ -283,6 +283,29 @@ def save_server_attributes(base_url: str, jwt: str, asset_id: str, attrs: dict[s
     r.raise_for_status()
 
 
+def save_device_server_attributes(base_url: str, jwt: str, device_id: str, attrs: dict[str, Any]) -> None:
+    headers = {"X-Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    url = f"{base_url.rstrip('/')}/api/plugins/telemetry/DEVICE/{device_id}/attributes/SERVER_SCOPE"
+    r = requests.post(url, json=attrs, headers=headers, timeout=30)
+    r.raise_for_status()
+
+
+def device_dashboard_metadata(floor: int, room_on_floor: int) -> dict[str, Any]:
+    """Dashboard-friendly metadata for a Room device.
+
+    map_x/map_y are normalized to 0..1 because ThingsBoard Image Map widgets
+    expect normalized coordinates relative to the floor-plan image.
+    """
+    base = room_metadata(floor, room_on_floor)
+    return {
+        "map_x": round(base["coordinates_x"] / 1000.0, 4),
+        "map_y": round(base["coordinates_y"] / 1000.0, 4),
+        "room_type": base["room_type"],
+        "floor_no": floor,
+        "room_on_floor": room_on_floor,
+    }
+
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -368,6 +391,13 @@ def main() -> int:
 
             room_idx = (floor_no - 1) * 20 + (room_on_floor - 1)
             save_relation(args.url, auth.token, room_ids[room_idx], "ASSET", device_id, "DEVICE")
+            try:
+                save_device_server_attributes(
+                    args.url, auth.token, device_id,
+                    device_dashboard_metadata(floor_no, room_on_floor),
+                )
+            except requests.HTTPError as e:
+                print(f"    [warn] dashboard attrs for {room_name}: {e}")
         print(f"  Floor {floor_no:02d} devices done")
 
     print("Devices created/updated and linked to rooms.")

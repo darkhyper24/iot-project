@@ -91,7 +91,14 @@ Generating simulator, CoAP... secrets... # or: Campus secrets already exist.
 ThingsBoard API is ready
 Running ... scripts/seed_thingsboard.py
 Running ... scripts/generate_nodered_flows.py
-ThingsBoard entities and Node-RED gateway flows are ready.
+Running ... scripts/seed_thingsboard_dashboard.py
+ThingsBoard entities, gateway flows, and Phase 3 dashboard are ready.
+```
+
+To skip dashboard auto-seeding (useful when iterating manually in the UI):
+
+```bash
+TB_BOOTSTRAP_DASHBOARD=false docker compose up -d --build
 ```
 
 Expected simulator indicators:
@@ -766,51 +773,71 @@ client_id
 
 ## 18. Dashboard / Image Map Check
 
-The backend data required by the image map is verified if these are present:
+The dashboard is now built automatically by `scripts/seed_thingsboard_dashboard.py`
+during `thingsboard-bootstrap`. It creates a single dashboard titled
+`Campus Phase 3 Digital Twin` with one overview state plus ten floor states,
+backed by the floor SVGs in `thingsboard/assets/floor_plans/`.
 
-```txt
-Room asset server attrs: coordinates_x, coordinates_y, room_type
-Room telemetry: temperature, occupancy
-Room client attrs: hvac_mode_reported, last_seen
-Shared attr control: desired values converge to reported values
-```
+### Bootstrap verification
 
-To build and visually test the dashboard in ThingsBoard:
+Confirm the dashboard exists and has the expected structure:
 
-1. Go to `Dashboards`.
-2. Create dashboard `Campus Floor Map`.
-3. Open the dashboard.
-4. Click `Edit mode`.
-5. Add an `Image Map` widget if available in your ThingsBoard widget bundles.
-6. Use `thingsboard/assets/floor_plans/floor-01.svg` as the floor plan image.
-7. Add 20 room polygons using each room's `coordinates_x` and `coordinates_y`.
-8. Bind polygon color to `temperature`.
-9. Add tooltip fields:
+```bash
+DASH_ID=$(curl -s "$TB_URL/api/tenant/dashboards?pageSize=200&page=0" \
+  -H "X-Authorization: Bearer $TB_TOKEN" \
+  | jq -r '.data[] | select(.title=="Campus Phase 3 Digital Twin") | .id.id')
 
-```txt
-occupancy
-hvac_mode_reported
-last_seen
-```
+echo "$DASH_ID"
 
-10. Configure polygon click action to open a control state or device details.
-11. In the popup/control state, write shared attrs:
-
-```txt
-hvac_mode_desired
-lighting_dimmer_desired
-target_temp_desired
+curl -s "$TB_URL/api/dashboard/$DASH_ID" \
+  -H "X-Authorization: Bearer $TB_TOKEN" \
+  | jq '.configuration | {states: (.states|keys|length), aliases: (.entityAliases|length), widgets: (.widgets|length)}'
 ```
 
 Expected:
 
 ```txt
-Room color changes as telemetry changes
-Tooltip shows live room values
-Changing desired state causes reported state to converge within a few seconds
+states  = 11        # default + floor-01..floor-10
+aliases >= 12       # all-rooms + floor-aggregates + (security?) + 10 per-floor
+widgets >= 35
 ```
 
-If the Image Map widget is not available in your ThingsBoard CE bundle, the backend Phase 3 data can still be verified with the API/UI tests above, but the visual dashboard must be created with whatever map/image widget exists in your installed ThingsBoard version.
+Confirm one room device has the dashboard metadata used by the Image Map:
+
+```bash
+D=$(dev_id b01-f01-r001)
+
+curl -s "$TB_URL/api/plugins/telemetry/DEVICE/$D/values/attributes/SERVER_SCOPE" \
+  -H "X-Authorization: Bearer $TB_TOKEN" | jq
+```
+
+Expected keys: `map_x`, `map_y`, `room_type`, `floor_no`, `room_on_floor`.
+Both `map_x` and `map_y` must be in the range `0..1`.
+
+### Optional manual UI walk-through
+
+In ThingsBoard UI:
+
+1. Open `Dashboards -> Campus Phase 3 Digital Twin`.
+2. Default state shows the fleet table, floor-aggregate table, floor average chart,
+   and (when populated) the b01-security tamper panel. An empty security panel is
+   normal unless an OTA tamper test was run recently.
+3. Switch state via the floor selector to `Floor 01` ... `Floor 10` to inspect
+   the Image Map. Markers are colored by current temperature and tooltips show
+   `temperature`, `occupancy`, `hvac_mode_reported`, and `last_seen`.
+4. To change a room interactively, open the device detail page and write the
+   shared attrs `hvac_mode_desired`, `lighting_dimmer_desired`, `target_temp_desired`.
+   Reported values converge within a few seconds.
+
+If your ThingsBoard CE build ships different widget FQNs and a widget renders as
+"Unknown widget", reseed the dashboard with the env var override (or open the
+dashboard JSON via the dashboard import/export menu and adjust widget bundles to
+the names available in your instance):
+
+```bash
+TB_BOOTSTRAP_DASHBOARD=false docker compose up -d --build
+docker compose run --rm thingsboard-bootstrap
+```
 
 ## 19. Run Automated Tests
 
@@ -828,6 +855,23 @@ TB_URL=http://localhost:9090 \
 TB_USER=tenant@thingsboard.org \
 TB_PASS=tenant \
 python -m pytest -q tests/test_gateway_ingest.py
+```
+
+Optional dashboard integration test (verifies the auto-seeded dashboard and the
+device-level map attributes against the running stack):
+
+```bash
+RUN_TB_DASHBOARD_TEST=1 \
+TB_URL=http://localhost:9090 \
+TB_USER=tenant@thingsboard.org \
+TB_PASS=tenant \
+python -m pytest -q tests/test_dashboard_integration.py
+```
+
+Pure unit tests for the dashboard generator (no stack required):
+
+```bash
+python -m pytest -q tests/test_dashboard_generation.py
 ```
 
 Expected:
@@ -853,3 +897,5 @@ Phase 3 is passing when all of these are true:
 - Tampered OTA is rejected and produces `b01-security` telemetry.
 - Floor plan SVGs exist for floors 1-10.
 - Dashboard data dependencies are visible in ThingsBoard UI.
+- Dashboard `Campus Phase 3 Digital Twin` exists with 11 states.
+- Room devices carry `map_x`, `map_y`, `room_type`, `floor_no`, `room_on_floor` SERVER_SCOPE attrs.

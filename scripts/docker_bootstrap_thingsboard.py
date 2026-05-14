@@ -59,7 +59,18 @@ def main() -> int:
     wait_for_login(url, username, password)
     run_script("scripts/seed_thingsboard.py", url, username, password)
     run_script("scripts/generate_nodered_flows.py", url, username, password)
-    print("ThingsBoard entities and Node-RED gateway flows are ready.")
+
+    seed_dashboard = os.environ.get("TB_BOOTSTRAP_DASHBOARD", "true").lower() not in {
+        "0", "false", "no",
+    }
+    if seed_dashboard:
+        run_script("scripts/seed_thingsboard_dashboard.py", url, username, password)
+        print("ThingsBoard entities, gateway flows, and Phase 3 dashboard are ready.")
+    else:
+        print(
+            "ThingsBoard entities and gateway flows are ready. "
+            "Dashboard seeding skipped (TB_BOOTSTRAP_DASHBOARD=false)."
+        )
     return 0
 
 
